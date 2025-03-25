@@ -1,9 +1,11 @@
+import React from "react";
+import RestaurantMap from "./Map";
 
 function App() {
   return (
     <div>
-      <h1>Restaurant app</h1>
-      <p>Welcome aboard!</p>
+      <h1>Restaurants nearby</h1>
+      <RestaurantMap />
     </div>
   );
 }
