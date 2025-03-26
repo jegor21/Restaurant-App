@@ -1,34 +1,21 @@
-import React from "react";
-import RestaurantMap from "./Map";
+import React from 'react';
+import Home from './Home';
+import './index.css';
 
 function App() {
   return (
-    <div>
-      <h1>Restaurants nearby</h1>
-      <RestaurantMap />
+    <div className="app">
+      <nav className="navbar">
+        <div className="logo">🍽️ RestaurantApp</div>
+        <ul className="nav-links">
+          <li><a href="/">Главная</a></li>
+          <li><a href="/restaurants">Рестораны</a></li>
+        </ul>
+      </nav>
+
+      <Home />
     </div>
   );
 }
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
 
 export default App;
