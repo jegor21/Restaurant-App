@@ -1,62 +1,86 @@
+/* --- Header --- */
 .header {
-    background: linear-gradient(135deg, #112d4e, #1b263b);
-    padding: 6rem 2rem;
-    color: #e0f7fa;
-    text-align: center;
-  }
-  
+  position: relative;
+  padding: 6rem 2rem;
+  color: #e0f7fa;
+  text-align: center;
+  transition: transform 0.5s ease;
+  overflow: hidden;
+}
+
+.header:hover {
+  transform: scale(1.02);
+}
+
+/* Полупрозрачный фильтр */
+.overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 4rem 2rem;
+  border-radius: 10px;
+}
+
+/* Тексты */
+.header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.header p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+/* --- About Section --- */
+.about {
+  padding: 4rem 2rem;
+  border-radius: 12px;
+  max-width: 960px;
+  margin: 3rem auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  color: #e0f7fa;
+  position: relative;
+  overflow: hidden;
+}
+
+.about-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+/* Заголовки */
+.about h2 {
+  font-size: 2rem;
+  color: #38bdf8;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.about p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  font-weight: 400;
+}
+
+/* --- Footer --- */
+.footer {
+  background-color: #0d1b2a;
+  padding: 1.5rem;
+  font-size: 0.95rem;
+  color: #94a3b8;
+  text-align: center;
+  margin-top: auto;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
   .header h1 {
-    font-size: 3rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-  }
-  
-  .header p {
-    font-size: 1.2rem;
-    opacity: 0.9;
-    font-weight: 400;
-  }
-  
-  .about {
-    padding: 4rem 2rem;
-    background-color: #0f172a;
-    max-width: 960px;
-    margin: 3rem auto;
-    border-radius: 12px;
-    text-align: left;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  }
-  
-  .about h2 {
-    font-size: 2rem;
-    color: #38bdf8;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-  }
-  
-  .about p {
-    color: #d1d5db;
-    font-size: 1.1rem;
-    line-height: 1.8;
-    font-weight: 400;
-  }
-  
-  .footer {
-    background-color: #0d1b2a;
-    padding: 1.5rem;
-    font-size: 0.95rem;
-    color: #94a3b8;
-    text-align: center;
-    margin-top: auto;
-  }
-  
-  @media (max-width: 768px) {
-    .header h1 {
       font-size: 2rem;
-    }
-  
-    .about {
-      padding: 2rem 1.5rem;
-    }
   }
-  
+
+  .about {
+      padding: 2rem 1.5rem;
+  }
+}
