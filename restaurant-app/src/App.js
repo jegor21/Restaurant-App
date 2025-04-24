@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './Home';
 import Restaurants from './Restaurants';
 import './index.css';
+import Map from './Map';
 
 function App() {
   return (
@@ -13,12 +14,14 @@ function App() {
           <ul className="nav-links">
             <li><Link to="/">Главная</Link></li>
             <li><Link to="/restaurants">Рестораны</Link></li>
+            <li><Link to="/map">test MAP</Link></li>
           </ul>
         </nav>
 
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/restaurants" element={<Restaurants />} />
+          <Route path="/Map" element={<Map />} />
         </Routes>
       </div>
     </Router>

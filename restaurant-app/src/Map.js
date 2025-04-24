@@ -36,6 +36,8 @@ const RestaurantMap = () => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         setRestaurants(results);
         setHasSearched(true); 
+
+        results.forEach(saveRestaurantToDB);
       } else {
         console.error("Error with searching restaurants:", status);
       }
@@ -63,6 +65,31 @@ const RestaurantMap = () => {
     circle.setMap(mapRef.current); 
     circleRef.current = circle; 
   }, [searchPoint, radius]);
+
+  const saveRestaurantToDB = async (place) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/restaurants", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: place.name,
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+        }),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Saved:", data);
+      } else {
+        console.error("Failed to save:", data);
+      }
+    } catch (err) {
+      console.error("Error saving restaurant:", err);
+    }
+  };
 
   // preview circle
   const updatePreviewRadius = (e) => {
