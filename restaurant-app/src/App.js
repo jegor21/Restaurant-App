@@ -10,7 +10,7 @@ function App() {
     <Router>
       <div className="app">
         <nav className="navbar">
-          <div className="logo">🍽️ RestaurantApp</div>
+          <div className="logo">RestaurantApp</div>
           <ul className="nav-links">
             <li><Link to="/">Главная</Link></li>
             <li><Link to="/restaurants">Рестораны</Link></li>

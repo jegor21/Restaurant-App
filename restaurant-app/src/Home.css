@@ -1,4 +1,10 @@
-/* --- Header --- */
+
+body {
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
 .header {
   position: relative;
   padding: 6rem 2rem;
@@ -12,14 +18,12 @@
   transform: scale(1.02);
 }
 
-/* Полупрозрачный фильтр */
 .overlay {
   background-color: rgba(0, 0, 0, 0.5);
   padding: 4rem 2rem;
   border-radius: 10px;
 }
 
-/* Тексты */
 .header h1 {
   font-size: 3rem;
   font-weight: 700;
@@ -32,7 +36,6 @@
   font-weight: 400;
 }
 
-/* --- About Section --- */
 .about {
   padding: 4rem 2rem;
   border-radius: 12px;
@@ -45,12 +48,11 @@
 }
 
 .about-overlay {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   padding: 2rem;
   border-radius: 10px;
 }
 
-/* Заголовки */
 .about h2 {
   font-size: 2rem;
   color: #38bdf8;
@@ -64,7 +66,28 @@
   font-weight: 400;
 }
 
-/* --- Footer --- */
+.button-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.explore-button {
+  background-color: #38bdf8;
+  color: #0d1b2a;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.explore-button:hover {
+  background-color: #0ea5e9;
+  transform: scale(1.05);
+}
+
 .footer {
   background-color: #0d1b2a;
   padding: 1.5rem;
@@ -74,7 +97,6 @@
   margin-top: auto;
 }
 
-/* --- Responsive --- */
 @media (max-width: 768px) {
   .header h1 {
       font-size: 2rem;

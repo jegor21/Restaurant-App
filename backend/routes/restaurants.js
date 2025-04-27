@@ -33,4 +33,16 @@ router.post('/', async (req, res) => {
   }
 });
 
+    // DELETE all restaurants
+router.delete('/clear', async (req, res) => {
+  try {
+    await db.query('DELETE FROM restaurants');
+    res.status(200).json({ message: 'All restaurants deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to clear restaurants' });
+  }
+});
+
+
 module.exports = router;
