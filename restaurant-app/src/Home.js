@@ -1,7 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
 function Home() {
+  const navigate = useNavigate();
+
   return (
     <>
       <header 
@@ -29,9 +32,16 @@ function Home() {
         <div className="about-overlay">
           <h2>О проекте</h2>
           <p>
-            RestaurantApp создан для любителей хорошей еды. Здесь вы можете найти список лучших ресторанов Таллинна,
-            посмотреть их расположение на карте, прочитать описание и выбрать место по душе.
+            RestaurantApp помогает вам находить лучшие рестораны поблизости. 
+            Просто выберите точку на карте, и приложение автоматически покажет вам рестораны в этом районе. 
+            Идеально для тех, кто любит открывать новые места!
           </p>
+
+          <div className="button-container">
+            <button className="explore-button" onClick={() => navigate('/map')}>
+              Перейти к карте
+            </button>
+          </div>
         </div>
       </section>
 
