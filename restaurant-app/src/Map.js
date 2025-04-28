@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import "./Map.css";
 
 const containerStyle = {
@@ -20,30 +20,11 @@ const RestaurantMap = () => {
   const circleRef = useRef(null);
   const previewCircleRef = useRef(null);
 
-  const fetchPlaceDetails = async (placeId) => {
-    try {
-      const service = new window.google.maps.places.PlacesService(mapRef.current);
-      return new Promise((resolve, reject) => {
-        service.getDetails(
-          {
-            placeId: placeId,
-            fields: ["place_id", "name", "geometry.location", "vicinity", "photos", "rating", "user_ratings_total"],
-          },
-          (place, status) => {
-            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-              resolve(place);
-            } else {
-              console.error("Ошибка при получении деталей ресторана:", status);
-              reject(status);
-            }
-          }
-        );
-      });
-    } catch (error) {
-      console.error("Ошибка в fetchPlaceDetails:", error);
-      return null;
-    }
-  };
+  // Новый способ загрузки карты
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: ["places"],
+  });
 
   const fetchRestaurants = useCallback(() => {
     if (!mapRef.current || hasSearched) return;
@@ -55,58 +36,25 @@ const RestaurantMap = () => {
       type: "restaurant",
     };
 
-    service.nearbySearch(request, async (results, status) => {
+    service.nearbySearch(request, (results, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+        setRestaurants(results);
         setHasSearched(true);
 
-        for (const result of results) {
-          try {
-            const detailedPlace = await fetchPlaceDetails(result.place_id);
-            if (detailedPlace) {
-              await saveRestaurantToDB(detailedPlace);
-            }
-          } catch (error) {
-            console.error("Ошибка при загрузке деталей ресторана:", error);
-          }
-        }
+        results.forEach(saveRestaurantToDB);
       } else {
-        console.error("Ошибка при поиске ресторанов:", status);
+        console.error("Error with searching restaurants:", status);
       }
     });
   }, [searchPoint, hasSearched]);
 
-  const saveRestaurantToDB = async (place) => {
-  try {
-    const response = await fetch("http://localhost:5000/api/restaurants", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        place_id: place.place_id,
-        name: place.name,
-        lat: place.geometry.location.lat(),
-        lng: place.geometry.location.lng(),
-        address: place.vicinity || "Unknown Address",
-        rating: place.rating || 0,
-        total_ratings: place.user_ratings_total || 0,
-        photos: (place.photos && place.photos.length > 0)
-          ? place.photos.filter(photo => photo && photo.photo_reference).map(photo => photo.photo_reference)
-          : [],
-      }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) console.error("Не удалось сохранить ресторан:", data);
-  } catch (err) {
-    console.error("Ошибка при сохранении ресторана:", err);
-  }
-};
-
-
   const updateRadiusCircle = useCallback(() => {
     if (!mapRef.current) return;
+
     if (circleRef.current) {
       circleRef.current.setMap(null);
     }
+
     const circle = new window.google.maps.Circle({
       center: searchPoint,
       radius: defaultRadius,
@@ -121,12 +69,43 @@ const RestaurantMap = () => {
     circleRef.current = circle;
   }, [searchPoint]);
 
+  const saveRestaurantToDB = async (place) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/restaurants", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          place_id: place.place_id,
+          name: place.name,
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+          address: place.vicinity || "Unknown Address",
+          rating: place.rating || 0,
+          total_ratings: place.user_ratings_total || 0,
+          photos: [],
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error("Failed to save restaurant:", error);
+      }
+    } catch (err) {
+      console.error("Error saving restaurant:", err);
+    }
+  };
+
   const updatePreviewRadius = (e) => {
     if (!mapRef.current || !isPreviewing) return;
+
     const latLng = e.latLng;
+
     if (previewCircleRef.current) {
       previewCircleRef.current.setMap(null);
     }
+
     const previewCircle = new window.google.maps.Circle({
       center: latLng,
       radius: defaultRadius,
@@ -158,11 +137,19 @@ const RestaurantMap = () => {
   };
 
   useEffect(() => {
-    if (!hasSearched) {
+    if (isLoaded && !hasSearched) {
       fetchRestaurants();
+      updateRadiusCircle();
     }
-    updateRadiusCircle();
-  }, [fetchRestaurants, searchPoint, hasSearched, updateRadiusCircle]);
+  }, [isLoaded, fetchRestaurants, searchPoint, hasSearched, updateRadiusCircle]);
+
+  if (loadError) {
+    return <div className="loading-text">Ошибка загрузки карты 😥</div>;
+  }
+
+  if (!isLoaded) {
+    return <div className="loading-text">Загрузка карты...</div>;
+  }
 
   return (
     <div className="map-container">
@@ -181,31 +168,25 @@ const RestaurantMap = () => {
           </button>
         </div>
 
-        <LoadScript
-          googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
-          libraries={["places"]}
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={center}
+          zoom={14}
+          onLoad={(map) => (mapRef.current = map)}
+          onClick={mouseMapClick}
+          onMouseMove={updatePreviewRadius}
         >
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={center}
-            zoom={14}
-            onLoad={(map) => (mapRef.current = map)}
-            onClick={mouseMapClick}
-            onMouseMove={updatePreviewRadius}
-          >
-            <Marker
-              position={searchPoint}
-              title="Точка поиска"
-              icon={{ url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" }}
-            />
-            {restaurants.map((place, index) => (
-              <Marker key={index} position={place.geometry.location} title={place.name} />
-            ))}
-          </GoogleMap>
-        </LoadScript>
+          <Marker
+            position={searchPoint}
+            title="Точка поиска"
+            icon={{ url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" }}
+          />
+          {restaurants.map((place, index) => (
+            <Marker key={index} position={place.geometry.location} title={place.name} />
+          ))}
+        </GoogleMap>
       </div>
 
-      {/* Футер */}
       <footer className="footer">
         <p>&copy; {new Date().getFullYear()} RestaurantApp. Все права защищены.</p>
       </footer>

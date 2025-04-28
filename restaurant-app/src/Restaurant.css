@@ -1,138 +1,155 @@
+/* Страница ресторанов */
 .restaurant-page {
+    padding: 2rem;
+    background: linear-gradient(to bottom, #0f172a, #1e293b);
     min-height: 100vh;
-    padding: 4rem 2rem;
-    text-align: center;
-    background: linear-gradient(135deg, #0d1b2a, #1b263b);
-    background-attachment: fixed;
-    background-size: cover;
-    color: #e0f7fa;
-    animation: fadeIn 1s ease;
   }
   
+  /* Заголовок */
   .restaurant-title {
+    text-align: center;
     font-size: 2.5rem;
-    font-weight: 700;
+    color: #60a5fa;
     margin-bottom: 2rem;
-    color: #38bdf8;
   }
   
-  .loading-text {
-    font-size: 1.2rem;
-    color: #94a3b8;
+  /* Панель кнопок */
+  .button-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
   }
   
+  /* Стиль кнопок */
+  .button-panel button {
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  /* Красная кнопка - Очистить рестораны */
+  .clear-button {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  .clear-button:hover {
+    background-color: #dc2626;
+  }
+  
+  /* Синие кнопки сортировки */
+  .sort-button {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  .sort-button:hover {
+    background-color: #2563eb;
+  }
+  
+  /* Список ресторанов */
   .restaurant-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
-    max-width: 1000px;
-    margin: 0 auto;
+    margin-top: 2rem;
   }
   
+  /* Карточка ресторана */
   .restaurant-card {
-    background-color: #163d43;
-    padding: 1rem;
+    background-color: #1e293b;
     border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 1rem;
     text-align: center;
+    color: #e0f2fe;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
   }
   
   .restaurant-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
   }
   
+  /* Картинка ресторана */
   .restaurant-image {
     width: 100%;
     height: 180px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-bottom: 1rem;
   }
   
-  .no-image {
-    width: 100%;
-    height: 180px;
-    background-color: #2c5364;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    font-size: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-  }
-  
+  /* Модалка */
   .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(15, 23, 42, 0.8);
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     z-index: 1000;
   }
   
   .modal-content {
-    background-color: #1b263b;
+    background-color: #1e293b;
     padding: 2rem;
     border-radius: 12px;
-    max-width: 500px;
     width: 90%;
-    color: #e0f7fa;
-    position: relative;
+    max-width: 600px;
     text-align: center;
+    color: #e0f2fe;
+    position: relative;
+    animation: fadeIn 0.3s ease;
   }
   
   .modal-image {
     width: 100%;
     height: 250px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-bottom: 1rem;
   }
   
+  /* Кнопка закрытия */
   .close-button {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 10px;
+    right: 20px;
     background: transparent;
     border: none;
     font-size: 2rem;
-    color: #ffffff;
+    color: #94a3b8;
     cursor: pointer;
   }
-
-  .button-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
   
-  .clear-button {
-    background-color: #ff4d4d;
-    color: white;
-    padding: 10px 25px;
-    border: none;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-  }
-  
-  .clear-button:hover {
-    background-color: #ff1a1a;
-    transform: scale(1.05);
-  }
-  
+  /* Анимация появления модалки */
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Текст загрузки */
+  .loading-text {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #94a3b8;
+    margin-top: 2rem;
   }
   
