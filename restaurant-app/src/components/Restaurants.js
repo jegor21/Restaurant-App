@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import "./Restaurant.css";
+import "./../styles/Restaurant.css";
 
 function Restaurants() {
   const [restaurants, setRestaurants] = useState([]);

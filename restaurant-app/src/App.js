@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './Home';
-import Restaurants from './Restaurants';
-import './index.css';
-import Map from './Map';
+import Restaurants from './components/Restaurants';
+import './styles/index.css';
+import Map from './components/Map';
 
 function App() {
   return (
