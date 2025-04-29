@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { authenticate, authorizeAdmin } = require('./auth'); 
 
 // GET all restaurants
 router.get('/', async (req, res) => {
@@ -27,7 +28,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST a new restaurant
-router.post('/', async (req, res) => {
+router.post('/', authenticate, authorizeAdmin, async (req, res) => {
   const { place_id, name, lat, lng, address, rating, total_ratings, photos } = req.body;
   try {
     // Check if the restaurant already exists
@@ -47,8 +48,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-    // DELETE all restaurants
-router.delete('/clear', async (req, res) => {
+// DELETE all restaurants
+router.delete('/:id', authenticate, authorizeAdmin, async (req, res) => {
   try {
     await db.query('DELETE FROM restaurants');
     res.status(200).json({ message: 'All restaurants deleted successfully' });
@@ -57,6 +58,5 @@ router.delete('/clear', async (req, res) => {
     res.status(500).json({ error: 'Failed to clear restaurants' });
   }
 });
-
 
 module.exports = router;
