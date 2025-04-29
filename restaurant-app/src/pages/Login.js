@@ -10,8 +10,9 @@ const Login = () => {
   const location = useLocation(); 
   const { login } = useContext(UserContext); 
 
-  
+  // Success messages
   const successMessage = location.state?.successMessage;
+  const emailConfirmationMessage = location.state?.emailConfirmationMessage;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,6 +40,7 @@ const Login = () => {
     <div className="login-page">
       <h2>Login</h2>
       {successMessage && <p className="success-message">{successMessage}</p>} 
+      {emailConfirmationMessage && <p className="info-message">{emailConfirmationMessage}</p>} 
       {error && <p className="error-message">{error}</p>}
       <form onSubmit={handleSubmit}>
         <input

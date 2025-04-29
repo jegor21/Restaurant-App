@@ -40,23 +40,21 @@ router.post('/register', async (req, res) => {
 
 // Confirmation mail
 router.get('/confirm-email', async (req, res) => {
-    const { token } = req.query;
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const email = decoded.email;
-  
-      // Update the user's status to "confirmed"
-      const [result] = await db.query('UPDATE users SET confirmed = 1 WHERE email = ?', [email]);
-      if (result.affectedRows === 0) {
-        return res.status(400).json({ error: 'Invalid or expired token' });
-      }
-  
-      res.json({ message: 'Email confirmed successfully. You can now log in.' });
-    } catch (error) {
-      console.error('Error confirming email:', error);
-      res.status(400).json({ error: 'Invalid or expired token' });
-    }
-  });
+  const { token } = req.query;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const email = decoded.email;
+
+    
+    await db.query('UPDATE users SET confirmed = 1 WHERE email = ?', [email]);
+
+    
+    res.redirect('http://localhost:3000/email-confirmation-success'); 
+  } catch (error) {
+    console.error('Error during email confirmation:', error);
+    res.status(400).json({ error: 'Invalid or expired token' });
+  }
+});
 
 // Login
 router.post('/login', async (req, res) => {

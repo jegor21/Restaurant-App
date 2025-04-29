@@ -1,0 +1,33 @@
+.email-confirmation-success {
+    max-width: 400px;
+    margin: 50px auto;
+    text-align: center;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .email-confirmation-success h2 {
+    color: #4caf50;
+    margin-bottom: 20px;
+  }
+  
+  .email-confirmation-success p {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .success-button {
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .success-button:hover {
+    background-color: #45a049;
+  }

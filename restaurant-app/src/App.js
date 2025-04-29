@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import { UserProvider, UserContext } from './UserContext';
 import PasswordReset from './pages/PasswordReset';
+import EmailConfirmationSuccess from './pages/EmailConfirmationSuccess';
 
 
 function App() {
@@ -21,20 +22,20 @@ function App() {
           <nav className="navbar">
             <div className="logo">RestaurantApp</div>
             <ul className="nav-links">
-              <li><Link to="/">Главная</Link></li>
-              <li><Link to="/restaurants">Рестораны</Link></li>
-              <li><Link to="/map">Карта</Link></li>
+              <li><Link to="/">Main</Link></li>
+              <li><Link to="/restaurants">Restaurant</Link></li>
+              <li><Link to="/map">Map</Link></li>
               <UserContext.Consumer>
                 {({ isAuthenticated, user, logout }) => (
                   isAuthenticated ? (
                     <>
-                      <li>Привет, {user?.username}!</li>
-                      <li><button onClick={logout} className="logout-button">Выйти</button></li>
+                      <li>Hello, {user?.username}!</li>
+                      <li><button onClick={logout} className="logout-button">Logout</button></li>
                     </>
                   ) : (
                     <>
-                      <li><Link to="/login">Войти</Link></li>
-                      <li><Link to="/register">Регистрация</Link></li>
+                      <li><Link to="/login">Login</Link></li>
+                      <li><Link to="/register">Register</Link></li>
                     </>
                   )
                 )}
@@ -59,6 +60,8 @@ function App() {
             <Route path="/password-recovery" element={<PasswordRecovery />} />
             <Route path="/password-reset" element={<PasswordReset />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/email-confirmation-success" element={<EmailConfirmationSuccess />} />
+            <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>
         </div>
       </Router>

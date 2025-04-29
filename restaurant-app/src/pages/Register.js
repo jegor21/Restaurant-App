@@ -24,7 +24,7 @@ const Register = () => {
         }),
       });
       if (response.ok) {
-        navigate('/login');
+        navigate('/login', { state: { emailConfirmationMessage: 'Please check your email to confirm your account.' } });
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Error with registration'); 
