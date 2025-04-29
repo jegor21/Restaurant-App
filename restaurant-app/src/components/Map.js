@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../UserContext"; 
 import "./../styles/Map.css";
 
 const containerStyle = {
@@ -11,6 +13,8 @@ const defaultCenter = { lat: 59.437, lng: 24.7536 }; // cord of Tallinn
 const defaultRadius = 2000; // radius of search (1 = 1 meter)
 
 const RestaurantMap = () => {
+  const { isAuthenticated } = useContext(UserContext); // Access auth status
+  const navigate = useNavigate(); 
   const [center] = useState(defaultCenter);
   const [searchPoint, setSearchPoint] = useState(defaultCenter); // point of search, green mark on the center of circle
   const [restaurants, setRestaurants] = useState([]);
@@ -20,7 +24,6 @@ const RestaurantMap = () => {
   const circleRef = useRef(null);
   const previewCircleRef = useRef(null);
 
-  // Новый способ загрузки карты
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries: ["places"],
@@ -32,15 +35,20 @@ const RestaurantMap = () => {
     const service = new window.google.maps.places.PlacesService(mapRef.current);
     const request = {
       location: searchPoint,
-      radius: defaultRadius, 
+      radius: defaultRadius,
       type: "restaurant",
     };
-
+  
+    console.log("Sending nearbySearch request with:", request); 
+  
     service.nearbySearch(request, (results, status) => {
+      console.log("nearbySearch status:", status); 
+      console.log("nearbySearch results:", results); 
+  
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         setRestaurants(results);
         setHasSearched(true);
-
+  
         results.forEach(saveRestaurantToDB);
       } else {
         console.error("Error with searching restaurants:", status);
@@ -48,33 +56,19 @@ const RestaurantMap = () => {
     });
   }, [searchPoint, hasSearched]);
 
-  const updateRadiusCircle = useCallback(() => {
-    if (!mapRef.current) return;
-
-    if (circleRef.current) {
-      circleRef.current.setMap(null);
-    }
-
-    const circle = new window.google.maps.Circle({
-      center: searchPoint,
-      radius: defaultRadius, 
-      fillColor: "#4caf50",
-      fillOpacity: 0.2,
-      strokeColor: "#4caf50",
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      clickable: false,
-    });
-    circle.setMap(mapRef.current);
-    circleRef.current = circle;
-  }, [searchPoint]);
-
   const saveRestaurantToDB = async (place) => {
     try {
+      const token = localStorage.getItem("token"); 
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
+  
       const response = await fetch("http://localhost:5000/api/restaurants", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, 
         },
         body: JSON.stringify({
           place_id: place.place_id,
@@ -87,15 +81,38 @@ const RestaurantMap = () => {
           photos: [],
         }),
       });
-
+  
       if (!response.ok) {
         const error = await response.json();
         console.error("Failed to save restaurant:", error);
+      } else {
+        console.log("Restaurant saved successfully");
       }
     } catch (err) {
       console.error("Error saving restaurant:", err);
     }
   };
+
+  const updateRadiusCircle = useCallback(() => {
+    if (!mapRef.current) return;
+
+    if (circleRef.current) {
+      circleRef.current.setMap(null);
+    }
+
+    const circle = new window.google.maps.Circle({
+      center: searchPoint,
+      radius: defaultRadius,
+      fillColor: "#4caf50",
+      fillOpacity: 0.2,
+      strokeColor: "#4caf50",
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      clickable: false,
+    });
+    circle.setMap(mapRef.current);
+    circleRef.current = circle;
+  }, [searchPoint]);
 
   const updatePreviewRadius = (e) => {
     if (!mapRef.current || !isPreviewing) return;
@@ -108,7 +125,7 @@ const RestaurantMap = () => {
 
     const previewCircle = new window.google.maps.Circle({
       center: latLng,
-      radius: defaultRadius, 
+      radius: defaultRadius,
       fillColor: "#2196f3",
       fillOpacity: 0.1,
       strokeColor: "#2196f3",
@@ -120,7 +137,6 @@ const RestaurantMap = () => {
     previewCircleRef.current = previewCircle;
   };
 
-  
   const togglePreview = () => {
     if (isPreviewing) {
       // clear preview circle if toggling off
@@ -132,37 +148,40 @@ const RestaurantMap = () => {
     setIsPreviewing(!isPreviewing);
   };
 
-  // search restaurants by click
   const mouseMapClick = (event) => {
     if (isPreviewing) {
       setSearchPoint({ lat: event.latLng.lat(), lng: event.latLng.lng() });
       setHasSearched(false);
-      setIsPreviewing(false); 
+      setIsPreviewing(false);
     }
   };
 
-  // makes a new response when searchPoint is changed
   useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login", { state: { errorMessage: "You need to log in to access the map." } });
+      return;
+    }
+
     if (isLoaded && !hasSearched) {
       fetchRestaurants();
       updateRadiusCircle();
     }
-  }, [isLoaded, fetchRestaurants, searchPoint, hasSearched, updateRadiusCircle]);
+  }, [isAuthenticated, isLoaded, fetchRestaurants, searchPoint, hasSearched, updateRadiusCircle, navigate]);
 
   if (loadError) {
-    return <div className="loading-text">Ошибка загрузки карты 😥</div>;
+    return <div className="loading-text">Error loading map 😥</div>;
   }
 
   if (!isLoaded) {
-    return <div className="loading-text">Загрузка карты...</div>;
+    return <div className="loading-text">Loading map...</div>;
   }
 
   return (
     <div className="map-container">
       <div className="map-page">
-        <h1 className="map-title">Поиск ресторанов на карте Таллинна</h1>
+        <h1 className="map-title">Search for Restaurants in Tallinn</h1>
         <p className="map-description">
-          Нажмите "Начать поиск", выберите точку на карте, и мы найдём для вас рестораны в радиусе 2 км!
+          Click "Start Search", select a point on the map, and we'll find restaurants within a 2 km radius for you!
         </p>
 
         <div className="button-wrapper">
@@ -170,7 +189,7 @@ const RestaurantMap = () => {
             onClick={togglePreview}
             className={`button ${isPreviewing ? "cancel" : ""}`}
           >
-            {isPreviewing ? "Отмена поиска" : "Начать поиск"}
+            {isPreviewing ? "Cancel Search" : "Start Search"}
           </button>
         </div>
 
@@ -184,7 +203,7 @@ const RestaurantMap = () => {
         >
           <Marker
             position={searchPoint}
-            title="Точка поиска"
+            title="Search Point"
             icon={{ url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" }}
           />
           {restaurants.map((place, index) => (
@@ -194,7 +213,7 @@ const RestaurantMap = () => {
       </div>
 
       <footer className="footer">
-        <p>&copy; {new Date().getFullYear()} RestaurantApp. Все права защищены.</p>
+        <p>&copy; {new Date().getFullYear()} RestaurantApp. All rights reserved.</p>
       </footer>
     </div>
   );

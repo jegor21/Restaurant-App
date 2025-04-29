@@ -4,7 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -12,23 +12,22 @@ export const UserProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        
-        const userData = jwtDecode(token);
-        setUser(userData); 
+        const userData = jwtDecode(token); 
+        setUser(userData);
         setIsAuthenticated(true);
       } catch (error) {
         console.error('Error decoding token:', error);
-        localStorage.removeItem('token'); 
+        localStorage.removeItem('token');
       }
     }
   }, []);
 
   const login = (token) => {
     try {
-      localStorage.setItem('token', token); 
-      const userData = jwtDecode(token); 
-      setUser(userData); 
-      setIsAuthenticated(true); 
+      localStorage.setItem('token', token);
+      const userData = jwtDecode(token);
+      setUser(userData);
+      setIsAuthenticated(true);
     } catch (error) {
       console.error('Error decoding token during login:', error);
     }

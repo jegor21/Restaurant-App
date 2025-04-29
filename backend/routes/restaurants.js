@@ -28,7 +28,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST a new restaurant
-router.post('/', authenticate, authorizeAdmin, async (req, res) => {
+router.post('/', authenticate, async (req, res) => {
   const { place_id, name, lat, lng, address, rating, total_ratings, photos } = req.body;
   try {
     // Check if the restaurant already exists
