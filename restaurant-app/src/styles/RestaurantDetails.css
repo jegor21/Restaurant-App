@@ -1,0 +1,40 @@
+.restaurant-details {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .details-image {
+    width: 300px;
+    height: auto;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border-radius: 10px;
+  }
+  
+  .back-button {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .back-button:hover {
+    background-color: #45a049;
+  }
+  
+  .details-button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .details-button:hover {
+    background-color: #0056b3;
+  }

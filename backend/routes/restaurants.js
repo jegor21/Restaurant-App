@@ -12,6 +12,20 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET restaurant details by ID
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await db.query('SELECT * FROM restaurants WHERE id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Restaurant not found' });
+    }
+    res.json(rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 // POST a new restaurant
 router.post('/', async (req, res) => {
   const { place_id, name, lat, lng, address, rating, total_ratings, photos } = req.body;

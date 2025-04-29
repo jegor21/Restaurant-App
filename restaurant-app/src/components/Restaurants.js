@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { Link } from "react-router-dom";
 import "./../styles/Restaurant.css";
 
 function Restaurants() {
@@ -77,24 +78,6 @@ function Restaurants() {
     setSelectedRestaurant(null);
   };
 
-  const clearRestaurants = async () => {
-    const confirmed = window.confirm("Вы уверены, что хотите удалить все рестораны?");
-    if (!confirmed) return;
-
-    try {
-      const response = await fetch("http://localhost:5000/api/restaurants/clear", {
-        method: "DELETE",
-      });
-      if (response.ok) {
-        setRestaurants([]);
-        localStorage.removeItem("assignedImages");
-      } else {
-        console.error("Failed to clear restaurants.");
-      }
-    } catch (error) {
-      console.error("Error clearing restaurants:", error);
-    }
-  };
 
   const sortByRating = () => {
     const sorted = [...restaurants].sort((a, b) => b.rating - a.rating);
@@ -113,10 +96,6 @@ function Restaurants() {
       <div className="button-panel">
         <button className="sort-button" onClick={sortByRating}>
           Сортировать по рейтингу ⭐
-        </button>
-
-        <button className="clear-button" onClick={clearRestaurants}>
-          Очистить рестораны
         </button>
 
         <button className="sort-button" onClick={sortByReviews}>
@@ -141,6 +120,9 @@ function Restaurants() {
                 onError={(e) => { e.target.src = fallbackImage; }}
               />
               <h3>{restaurant.name}</h3>
+              <Link to={`/restaurants/${restaurant.id}`}>
+                <button className="details-button">Подробнее</button>
+              </Link>
             </div>
           ))}
         </div>
@@ -166,6 +148,7 @@ function Restaurants() {
             <p><strong>Координаты:</strong> {selectedRestaurant.lat}, {selectedRestaurant.lng}</p>
             <p><strong>Адрес:</strong> {selectedRestaurant.address}</p>
             <p><strong>Рейтинг:</strong> {selectedRestaurant.rating} ({selectedRestaurant.total_ratings} отзывов)</p>
+            
           </div>
         </div>
       )}
