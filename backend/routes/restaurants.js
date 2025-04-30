@@ -28,13 +28,47 @@ const getCityFromCoordinates = async (lat, lng) => {
   return 'Unknown City';
 };
 
-// GET all restaurants
 router.get('/', async (req, res) => {
+  const { search, sort, order, page = 1, limit = 10 } = req.query;
+
   try {
-    const [rows] = await db.query('SELECT * FROM restaurants');
-    res.json(rows);
+    let query = 'SELECT * FROM restaurants';
+    const queryParams = [];
+    let countQuery = 'SELECT COUNT(*) as total FROM restaurants';
+
+    // search bar
+    if (search) {
+      query += ' WHERE name LIKE ? OR city LIKE ? OR address LIKE ?';
+      countQuery += ' WHERE name LIKE ? OR city LIKE ? OR address LIKE ?';
+      queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+
+    // sorting
+    if (sort) {
+      const validSortFields = ['name', 'rating', 'total_ratings'];
+      if (validSortFields.includes(sort)) {
+        query += ` ORDER BY ${sort}`;
+        if (order === 'desc') {
+          query += ' DESC';
+        } else {
+          query += ' ASC';
+        }
+      }
+    }
+
+    // pagination
+    const offset = (page - 1) * limit;
+    query += ' LIMIT ? OFFSET ?';
+    queryParams.push(Number(limit), Number(offset));
+
+    const [rows] = await db.query(query, queryParams);
+    const [countResult] = await db.query(countQuery, queryParams.slice(0, 3)); // Use same search params for count
+    const total = countResult[0].total;
+
+    res.json({ data: rows, total });
   } catch (error) {
-    res.status(500).json({ error: 'Database error' });
+    console.error('Error fetching restaurants:', error);
+    res.status(500).json({ error: 'Failed to fetch restaurants' });
   }
 });
 
@@ -54,34 +88,29 @@ router.get('/:id', async (req, res) => {
 
 // POST a New Restaurant
 router.post('/', authenticate, async (req, res) => {
-  const { searchPoint, restaurants } = req.body; 
-
-  console.log("Received searchPoint:", searchPoint); 
-  console.log("Received restaurants:", restaurants); 
+  const { searchPoint, restaurants } = req.body;
 
   try {
-    
     const city = await getCityFromCoordinates(searchPoint.lat, searchPoint.lng);
-    console.log("City determined from searchPoint:", city); 
 
     const results = [];
     for (const restaurant of restaurants) {
-      const { place_id, name, lat, lng, address, rating, total_ratings, photos } = restaurant;
+      const { place_id, name, lat, lng, address, rating, total_ratings } = restaurant;
 
-      
+      // default photo "no-photo.jpg"
+      const photos = restaurant.photos || "no-photo.jpg";
+
       const cleanAddress = address.split(',').slice(0, -1).join(',').trim();
 
-      
       const [existing] = await db.query('SELECT * FROM restaurants WHERE place_id = ?', [place_id]);
       if (existing.length > 0) {
         results.push({ place_id, status: 'exists' });
         continue;
       }
 
-      
       const [result] = await db.query(
         'INSERT INTO restaurants (place_id, name, lat, lng, address, city, rating, total_ratings, photos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [place_id, name, lat, lng, cleanAddress, city, rating, total_ratings, JSON.stringify(photos)]
+        [place_id, name, lat, lng, cleanAddress, city, rating, total_ratings, photos]
       );
 
       results.push({ id: result.insertId, place_id, status: 'saved' });
@@ -89,8 +118,8 @@ router.post('/', authenticate, async (req, res) => {
 
     res.json(results);
   } catch (error) {
-    console.error("Error saving restaurants:", error);
-    res.status(500).json({ error: "Failed to save restaurants" });
+    console.error('Error saving restaurants:', error);
+    res.status(500).json({ error: 'Failed to save restaurants' });
   }
 });
 

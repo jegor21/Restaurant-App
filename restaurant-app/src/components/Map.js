@@ -77,7 +77,7 @@ const RestaurantMap = () => {
         address: place.vicinity || "Unknown Address",
         rating: place.rating || 0,
         total_ratings: place.user_ratings_total || 0,
-        photos: [],
+        photos: "no-photo.jpg",
       }));
   
       console.log("Sending data to backend:", { searchPoint, restaurants });
