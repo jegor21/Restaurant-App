@@ -5,32 +5,30 @@ export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
-    // Check if a token exists in localStorage
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const userData = jwtDecode(token); 
+        const userData = jwtDecode(token);
         setUser(userData);
         setIsAuthenticated(true);
       } catch (error) {
         console.error('Error decoding token:', error);
         localStorage.removeItem('token');
+        setIsAuthenticated(false);
       }
+    } else {
+      setIsAuthenticated(false);
     }
   }, []);
 
   const login = (token) => {
-    try {
-      localStorage.setItem('token', token);
-      const userData = jwtDecode(token);
-      setUser(userData);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Error decoding token during login:', error);
-    }
+    localStorage.setItem('token', token);
+    const userData = jwtDecode(token);
+    setUser(userData);
+    setIsAuthenticated(true);
   };
 
   const logout = () => {

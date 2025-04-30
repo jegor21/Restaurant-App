@@ -5,7 +5,6 @@ import "./../styles/Restaurant.css";
 function Restaurants() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
 
   const randomImages = useMemo(() => [
     "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
@@ -70,15 +69,6 @@ function Restaurants() {
     fetchRestaurants();
   }, [fetchRestaurants]);
 
-  const openModal = (restaurant) => {
-    setSelectedRestaurant(restaurant);
-  };
-
-  const closeModal = () => {
-    setSelectedRestaurant(null);
-  };
-
-
   const sortByRating = () => {
     const sorted = [...restaurants].sort((a, b) => b.rating - a.rating);
     setRestaurants(sorted);
@@ -104,15 +94,11 @@ function Restaurants() {
       </div>
 
       {loading ? (
-        <p className="loading-text">Загрузка ресторанов...</p>
+        <p className="loading-text">Loading restaurants...</p>
       ) : (
         <div className="restaurant-list">
           {restaurants.map((restaurant) => (
-            <div
-              key={restaurant.id}
-              className="restaurant-card"
-              onClick={() => openModal(restaurant)}
-            >
+            <div key={restaurant.id} className="restaurant-card">
               <img
                 src={restaurant.randomImage || fallbackImage}
                 alt={restaurant.name}
@@ -121,35 +107,10 @@ function Restaurants() {
               />
               <h3>{restaurant.name}</h3>
               <Link to={`/restaurants/${restaurant.id}`}>
-                <button className="details-button">Подробнее</button>
+                <button className="details-button">Details</button>
               </Link>
             </div>
           ))}
-        </div>
-      )}
-
-      {selectedRestaurant && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={closeModal}>
-              ×
-            </button>
-
-            <img
-              src={selectedRestaurant.randomImage || fallbackImage}
-              alt={selectedRestaurant.name}
-              className="modal-image"
-              onError={(e) => { e.target.src = fallbackImage; }}
-            />
-
-            <h2>{selectedRestaurant.name}</h2>
-            <p><strong>ID:</strong> {selectedRestaurant.id}</p>
-            <p><strong>Place ID:</strong> {selectedRestaurant.place_id}</p>
-            <p><strong>Координаты:</strong> {selectedRestaurant.lat}, {selectedRestaurant.lng}</p>
-            <p><strong>Адрес:</strong> {selectedRestaurant.address}</p>
-            <p><strong>Рейтинг:</strong> {selectedRestaurant.rating} ({selectedRestaurant.total_ratings} отзывов)</p>
-            
-          </div>
         </div>
       )}
     </div>
