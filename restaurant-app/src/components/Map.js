@@ -39,57 +39,66 @@ const RestaurantMap = () => {
       type: "restaurant",
     };
   
-    console.log("Sending nearbySearch request with:", request); 
+    console.log("Sending nearbySearch request with:", request);
   
     service.nearbySearch(request, (results, status) => {
-      console.log("nearbySearch status:", status); 
-      console.log("nearbySearch results:", results); 
+      console.log("nearbySearch status:", status);
+      console.log("nearbySearch results:", results);
   
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         setRestaurants(results);
         setHasSearched(true);
   
-        results.forEach(saveRestaurantToDB);
+        saveRestaurantToDB(searchPoint, results);
       } else {
         console.error("Error with searching restaurants:", status);
       }
     });
   }, [searchPoint, hasSearched]);
 
-  const saveRestaurantToDB = async (place) => {
+  const saveRestaurantToDB = async (searchPoint, places) => {
     try {
-      const token = localStorage.getItem("token"); 
+      const token = localStorage.getItem("token");
       if (!token) {
         console.error("No authentication token found");
         return;
       }
   
+      if (!Array.isArray(places)) {
+        console.error("Error: places is not an array:", places);
+        return;
+      }
+  
+      const restaurants = places.map((place) => ({
+        place_id: place.place_id,
+        name: place.name,
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng(),
+        address: place.vicinity || "Unknown Address",
+        rating: place.rating || 0,
+        total_ratings: place.user_ratings_total || 0,
+        photos: [],
+      }));
+  
+      console.log("Sending data to backend:", { searchPoint, restaurants });
+  
       const response = await fetch("http://localhost:5000/api/restaurants", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          place_id: place.place_id,
-          name: place.name,
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng(),
-          address: place.vicinity || "Unknown Address",
-          rating: place.rating || 0,
-          total_ratings: place.user_ratings_total || 0,
-          photos: [],
-        }),
+        body: JSON.stringify({ searchPoint, restaurants }),
       });
   
       if (!response.ok) {
         const error = await response.json();
-        console.error("Failed to save restaurant:", error);
+        console.error("Failed to save restaurants:", error);
       } else {
-        console.log("Restaurant saved successfully");
+        console.log("Restaurants saved successfully");
       }
     } catch (err) {
-      console.error("Error saving restaurant:", err);
+      console.error("Error saving restaurants:", err);
     }
   };
 
