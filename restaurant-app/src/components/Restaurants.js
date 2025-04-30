@@ -183,7 +183,7 @@ function Restaurants() {
             <div
               key={restaurant.id}
               className="restaurant-card"
-              onClick={() => navigate(`/restaurants/${restaurant.id}`)}
+              onClick={() => navigate(`/restaurants/${restaurant.place_id}`)}
             >
               <div className="image-wrapper">
                 <img

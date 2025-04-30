@@ -46,7 +46,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/restaurants" element={<Restaurants />} />
-            <Route path="/restaurants/:id" element={<RestaurantDetails />} />
+            <Route path="/restaurants/:place_id" element={<RestaurantDetails />} />
             <Route path="/map" element={
               <UserContext.Consumer>
                 {({ isAuthenticated }) => (
