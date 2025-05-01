@@ -157,5 +157,18 @@ const authorizeAdmin = (req, res, next) => {
   next();
 };
 
+router.get('/me', authenticate, async (req, res) => {
+  try {
+    const [users] = await db.query('SELECT id, username, role FROM users WHERE id = ?', [req.user.id]);
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const user = users[0];
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ error: 'Failed to fetch user data' });
+  }
+});
 
 module.exports = { router, authenticate, authorizeAdmin };

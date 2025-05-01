@@ -169,7 +169,7 @@ router.post('/:place_id/comments', authenticate, async (req, res) => {
     // Insert the comment into the database
     const [result] = await db.query(
       'INSERT INTO comments (place_id, user_id, comment) VALUES (?, ?, ?)',
-      [place_id, userId, comment]
+      [place_id, userId, comment, 'pending']
     );
 
     // Fetch the username of the user who posted the comment
@@ -181,11 +181,98 @@ router.post('/:place_id/comments', authenticate, async (req, res) => {
       user_id: userId,
       username: user[0].username,
       comment,
+      status: 'pending',
       created_at: new Date(),
     });
   } catch (error) {
     console.error('Error posting comment:', error);
     res.status(500).json({ error: 'Failed to post comment' });
+  }
+});
+
+
+// CRUD Operations for Restaurants
+router.get('/admin/restaurants', authenticate, authorizeAdmin, async (req, res) => {
+  try {
+    const [restaurants] = await db.query('SELECT * FROM restaurants');
+    res.json(restaurants);
+  } catch (error) {
+    console.error('Error fetching restaurants:', error);
+    res.status(500).json({ error: 'Failed to fetch restaurants' });
+  }
+});
+
+router.post('/admin/restaurants', authenticate, authorizeAdmin, async (req, res) => {
+  const { name, address, city, lat, lng, rating } = req.body;
+  try {
+    const [result] = await db.query(
+      'INSERT INTO restaurants (name, address, city, lat, lng, rating) VALUES (?, ?, ?, ?, ?, ?)',
+      [name, address, city, lat, lng, rating]
+    );
+    res.status(201).json({ id: result.insertId, name, address, city, lat, lng, rating });
+  } catch (error) {
+    console.error('Error adding restaurant:', error);
+    res.status(500).json({ error: 'Failed to add restaurant' });
+  }
+});
+
+router.put('/admin/restaurants/:id', authenticate, authorizeAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { name, address, city, lat, lng, rating } = req.body;
+  try {
+    await db.query(
+      'UPDATE restaurants SET name = ?, address = ?, city = ?, lat = ?, lng = ?, rating = ? WHERE id = ?',
+      [name, address, city, lat, lng, rating, id]
+    );
+    res.json({ id, name, address, city, lat, lng, rating });
+  } catch (error) {
+    console.error('Error updating restaurant:', error);
+    res.status(500).json({ error: 'Failed to update restaurant' });
+  }
+});
+
+router.delete('/admin/restaurants/:id', authenticate, authorizeAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM restaurants WHERE id = ?', [id]);
+    res.json({ message: 'Restaurant deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting restaurant:', error);
+    res.status(500).json({ error: 'Failed to delete restaurant' });
+  }
+});
+
+// Approve, Reject, or Delete Comments
+router.put('/admin/comments/:id/approve', authenticate, authorizeAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('UPDATE comments SET status = "approved" WHERE id = ?', [id]);
+    res.json({ message: 'Comment approved successfully' });
+  } catch (error) {
+    console.error('Error approving comment:', error);
+    res.status(500).json({ error: 'Failed to approve comment' });
+  }
+});
+
+router.put('/admin/comments/:id/reject', authenticate, authorizeAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('UPDATE comments SET status = "rejected" WHERE id = ?', [id]);
+    res.json({ message: 'Comment rejected successfully' });
+  } catch (error) {
+    console.error('Error rejecting comment:', error);
+    res.status(500).json({ error: 'Failed to reject comment' });
+  }
+});
+
+router.delete('/admin/comments/:id', authenticate, authorizeAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM comments WHERE id = ?', [id]);
+    res.json({ message: 'Comment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    res.status(500).json({ error: 'Failed to delete comment' });
   }
 });
 

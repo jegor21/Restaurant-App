@@ -12,6 +12,8 @@ const containerStyle = {
 const defaultCenter = { lat: 59.437, lng: 24.7536 }; // cord of Tallinn
 const defaultRadius = 500; // radius of search (1 = 1 meter)
 
+const libraries = ["places"];
+
 const RestaurantMap = () => {
   const { isAuthenticated } = useContext(UserContext); // Access auth status
   const navigate = useNavigate(); 
@@ -29,7 +31,7 @@ const RestaurantMap = () => {
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    libraries: ["places"],
+    libraries,
   });
 
   const fetchRestaurants = useCallback(() => {

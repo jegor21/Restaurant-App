@@ -67,10 +67,11 @@ const RestaurantDetails = () => {
         const newCommentData = await response.json();
         setComments([newCommentData, ...comments]);
         setNewComment("");
-        setCurrentPage(1);
+        alert("Your comment has been submitted and is pending approval.");
       }
     } catch (error) {
       console.error("Error adding comment:", error);
+      alert("Failed to submit your comment. Please try again.");
     }
   };
 
@@ -198,10 +199,13 @@ const RestaurantDetails = () => {
         {comments.length === 0 ? (
           <p>No comments yet. Be the first to comment!</p>
         ) : (
-          currentComments.map((comment) => (
+          comments.map((comment) => (
             <div key={comment.id} className="comment">
               <p><strong>{comment.username}:</strong> {comment.comment}</p>
-              <small>Posted on: {new Date(comment.created_at).toLocaleString()}</small>
+              <small>
+                Posted on: {new Date(comment.created_at).toLocaleString()}
+                {comment.status === "pending" && " (Pending Approval)"}
+              </small>
             </div>
           ))
         )}
