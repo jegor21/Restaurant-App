@@ -57,8 +57,10 @@ export const UserProvider = ({ children }) => {
     refreshUser(); // Refresh user data on app load
   }, [refreshUser]); // Run only once when the component mounts
 
+  const isAdmin = user && user.role === 'admin';
+
   return (
-    <UserContext.Provider value={{ user, isAuthenticated, login, logout, refreshUser }}>
+    <UserContext.Provider value={{ user, isAuthenticated, isAdmin, login, logout, refreshUser }}>
       {children}
     </UserContext.Provider>
   );

@@ -31,32 +31,37 @@ router.post('/restaurants', authenticate, authorizeAdmin, async (req, res) => {
 
 // Update a restaurant
 router.put('/restaurants/:id', authenticate, authorizeAdmin, async (req, res) => {
-  const { id } = req.params;
-  const { name, address, city, lat, lng, rating } = req.body;
-  try {
-    await db.query(
-      'UPDATE restaurants SET name = ?, address = ?, city = ?, lat = ?, lng = ?, rating = ? WHERE id = ?',
-      [name, address, city, lat, lng, rating, id]
-    );
-    res.json({ id, name, address, city, lat, lng, rating });
-  } catch (error) {
-    console.error('Error updating restaurant:', error);
-    res.status(500).json({ error: 'Failed to update restaurant' });
-  }
-});
+    const { id } = req.params;
+    const { name, address, city, lat, lng, rating } = req.body;
+    try {
+      await db.query(
+        'UPDATE restaurants SET name = ?, address = ?, city = ?, lat = ?, lng = ?, rating = ? WHERE id = ?',
+        [name, address, city, lat, lng, rating, id]
+      );
+      res.json({ message: 'Restaurant updated successfully' });
+    } catch (error) {
+      console.error('Error updating restaurant:', error);
+      res.status(500).json({ error: 'Failed to update restaurant' });
+    }
+  });
 
-// Delete a restaurant
+// Delete a restaurant and comments
 router.delete('/restaurants/:id', authenticate, authorizeAdmin, async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db.query('DELETE FROM restaurants WHERE id = ?', [id]);
-    res.json({ message: 'Restaurant deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting restaurant:', error);
-    res.status(500).json({ error: 'Failed to delete restaurant' });
-  }
-});
-
+    const { id } = req.params;
+    try {
+      
+      await db.query('DELETE FROM comments WHERE place_id = ?', [id]);
+  
+      
+      await db.query('DELETE FROM restaurants WHERE id = ?', [id]);
+  
+      res.json({ message: 'Restaurant and associated comments deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting restaurant:', error);
+      res.status(500).json({ error: 'Failed to delete restaurant' });
+    }
+  });
+  
 // Fetch all pending comments
 router.get('/comments', authenticate, authorizeAdmin, async (req, res) => {
     try {
@@ -99,16 +104,16 @@ router.put('/comments/:id/reject', authenticate, authorizeAdmin, async (req, res
   }
 });
 
-// Delete a comment
+// Delete a specific comment
 router.delete('/comments/:id', authenticate, authorizeAdmin, async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db.query('DELETE FROM comments WHERE id = ?', [id]);
-    res.json({ message: 'Comment deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting comment:', error);
-    res.status(500).json({ error: 'Failed to delete comment' });
-  }
-});
+    const { id } = req.params;
+    try {
+      await db.query('DELETE FROM comments WHERE id = ?', [id]);
+      res.json({ message: 'Comment deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      res.status(500).json({ error: 'Failed to delete comment' });
+    }
+  });
 
 module.exports = router;

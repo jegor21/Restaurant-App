@@ -6,7 +6,7 @@ import "./../styles/RestaurantDetails.css";
 const RestaurantDetails = () => {
   const { place_id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useContext(UserContext);
+  const { isAuthenticated, isAdmin } = useContext(UserContext);
   const [restaurant, setRestaurant] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -16,6 +16,7 @@ const RestaurantDetails = () => {
   const [sortOrder, setSortOrder] = useState("newest");
   const commentsPerPage = 5;
   const commentLimit = 250;
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     const fetchRestaurantDetails = async () => {
@@ -64,7 +65,7 @@ const RestaurantDetails = () => {
         body: JSON.stringify({ comment: newComment }),
       });
       if (response.ok) {
-        setNewComment(""); // Clear the input field
+        setNewComment(""); 
         alert("Your comment has been submitted and is pending approval.");
       }
     } catch (error) {
@@ -107,6 +108,77 @@ const RestaurantDetails = () => {
     );
   }
 
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm("Are you sure you want to delete this comment?")) return;
+    console.log("Authorization Header:", `Bearer ${localStorage.getItem("token")}`);
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/comments/${commentId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+  
+      if (response.ok) {
+        setComments(comments.filter((comment) => comment.id !== commentId));
+        alert("Comment deleted successfully.");
+      } else {
+        throw new Error("Failed to delete comment.");
+      }
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      alert("Failed to delete comment. Please try again.");
+    }
+  };
+
+  const handleDeleteRestaurant = async () => {
+    if (!window.confirm("Are you sure you want to delete this restaurant and all its comments?")) return;
+  
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/restaurants/${restaurant.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+  
+      if (response.ok) {
+        alert("Restaurant and associated comments deleted successfully.");
+        navigate("/"); 
+      } else {
+        throw new Error("Failed to delete restaurant.");
+      }
+    } catch (error) {
+      console.error("Error deleting restaurant:", error);
+      alert("Failed to delete restaurant. Please try again.");
+    }
+  };
+
+  const handleUpdateRestaurant = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/restaurants/${restaurant.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(restaurant),
+      });
+  
+      if (response.ok) {
+        alert("Restaurant updated successfully.");
+        setEditing(false);
+      } else {
+        throw new Error("Failed to update restaurant.");
+      }
+    } catch (error) {
+      console.error("Error updating restaurant:", error);
+      alert("Failed to update restaurant. Please try again.");
+    }
+  };
+
   const handleGoogleSearch = () => {
     const query = `${restaurant.name}, ${restaurant.address}, ${restaurant.city}`;
     window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, "_blank");
@@ -120,6 +192,12 @@ const RestaurantDetails = () => {
   return (
     <div className="restaurant-details">
       <button onClick={() => navigate(-1)} className="back-button">Go Back</button>
+      {isAdmin && (
+        <div className="admin-actions">
+          <button onClick={() => setEditing(true)} className="update-button">Update Details</button>
+          <button onClick={handleDeleteRestaurant} className="delete-button">Delete Restaurant</button>
+        </div>
+      )}
       <div className="top-section">
         {/* Photos Section */}
         <div className="photos-section">
@@ -145,10 +223,65 @@ const RestaurantDetails = () => {
       {/* Info Section */}
       <div className="info-section">
         <h3>Restaurant Information</h3>
-        <p><strong>Name:</strong> {restaurant.name}</p>
-        <p><strong>Address:</strong> {restaurant.address}</p>
-        <p><strong>City:</strong> {restaurant.city || "Unknown City"}</p>
-        <p><strong>Rating:</strong> {restaurant.rating} ({restaurant.total_ratings} reviews)</p>
+        {editing ? (
+          <form onSubmit={handleUpdateRestaurant} className="update-form">
+            <div>
+              <label htmlFor="name">Name:</label>
+              <input
+                id="name"
+                type="text"
+                value={restaurant.name}
+                onChange={(e) => setRestaurant({ ...restaurant, name: e.target.value })}
+                placeholder="Restaurant Name"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="address">Address:</label>
+              <input
+                id="address"
+                type="text"
+                value={restaurant.address}
+                onChange={(e) => setRestaurant({ ...restaurant, address: e.target.value })}
+                placeholder="Address"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="city">City:</label>
+              <input
+                id="city"
+                type="text"
+                value={restaurant.city}
+                onChange={(e) => setRestaurant({ ...restaurant, city: e.target.value })}
+                placeholder="City"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="rating">Rating:</label>
+              <input
+                id="rating"
+                type="number"
+                value={restaurant.rating}
+                onChange={(e) => setRestaurant({ ...restaurant, rating: e.target.value })}
+                placeholder="Rating"
+                required
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="save-button">Save Changes</button>
+              <button type="button" onClick={() => setEditing(false)} className="cancel-button">Cancel</button>
+            </div>
+          </form>
+        ) : (
+          <>
+            <p><strong>Name:</strong> {restaurant.name}</p>
+            <p><strong>Address:</strong> {restaurant.address}</p>
+            <p><strong>City:</strong> {restaurant.city || "Unknown City"}</p>
+            <p><strong>Rating:</strong> {restaurant.rating} ({restaurant.total_ratings} reviews)</p>
+          </>
+        )}
       </div>
 
       <div className="comments-section">
@@ -190,19 +323,20 @@ const RestaurantDetails = () => {
           </select>
         </div>
 
-        {sortedComments.length === 0 ? (
-          <p>No comments yet. Be the first to comment!</p>
-        ) : (
-          sortedComments.map((comment) => (
-            <div key={comment.id} className="comment">
-              <p><strong>{comment.username}:</strong> {comment.comment}</p>
-              <small>
-                Posted on: {new Date(comment.created_at).toLocaleString()}
-                {comment.status === "pending" && " (Pending Approval)"}
-              </small>
-            </div>
-          ))
-        )}
+        {sortedComments.map((comment) => (
+          <div key={comment.id} className="comment">
+            <p><strong>{comment.username}:</strong> {comment.comment}</p>
+            <small>
+              Posted on: {new Date(comment.created_at).toLocaleString()}
+              {comment.status === "pending" && " (Pending Approval)"}
+            </small>
+            {isAdmin && (
+              <button onClick={() => handleDeleteComment(comment.id)} className="delete-comment-button">
+                Delete Comment
+              </button>
+            )}
+          </div>
+        ))}
 
         {/* Pagination */}
         {comments.length > commentsPerPage && (
