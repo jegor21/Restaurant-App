@@ -98,8 +98,6 @@ router.post('/', authenticate, async (req, res) => {
     for (const restaurant of restaurants) {
       const { place_id, name, lat, lng, address, rating, total_ratings } = restaurant;
 
-      // default photo "no-photo.jpg"
-      const photos = restaurant.photos || "no-photo.jpg";
 
       const cleanAddress = address.split(',').slice(0, -1).join(',').trim();
 
@@ -111,7 +109,7 @@ router.post('/', authenticate, async (req, res) => {
 
       const [result] = await db.query(
         'INSERT INTO restaurants (place_id, name, lat, lng, address, city, rating, total_ratings, photos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [place_id, name, lat, lng, cleanAddress, city, rating, total_ratings, photos]
+        [place_id, name, lat, lng, cleanAddress, city, rating, total_ratings, '/uploads/no-photo.jpg']
       );
 
       results.push({ id: result.insertId, place_id, status: 'saved' });

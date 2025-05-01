@@ -8,7 +8,7 @@ const AdminPage = () => {
       <h1>Admin Dashboard</h1>
       <ul>
         <li>
-          <Link to="/admin/restaurants">Manage Restaurants</Link>
+          <Link to="/restaurants">Manage Restaurants</Link>
         </li>
         <li>
           <Link to="/admin/comments">Manage Comments</Link>

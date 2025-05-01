@@ -45,6 +45,35 @@ const RestaurantDetails = () => {
     fetchRestaurantDetails();
   }, [place_id]);
 
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+  
+    const formData = new FormData();
+    formData.append('photo', file);
+  
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/restaurants/${restaurant.id}/photo`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: formData,
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setRestaurant({ ...restaurant, photos: data.photo_src });
+        alert('Photo uploaded successfully');
+      } else {
+        throw new Error('Failed to upload photo');
+      }
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      alert('Failed to upload photo. Please try again.');
+    }
+  };
+
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
@@ -200,10 +229,24 @@ const RestaurantDetails = () => {
       )}
       <div className="top-section">
         {/* Photos Section */}
-        <div className="photos-section">
-          <h3>Photos</h3>
-          <p>Photo gallery will be displayed here.</p>
-        </div>
+          <div className="photos-section">
+            <h3>Photos</h3>
+            {restaurant.photos ? (
+              <img
+                src={`http://localhost:5000${restaurant.photos}`}
+                alt={restaurant.name}
+                className="restaurant-photo"
+              />
+            ) : (
+              <p>No photo available</p>
+            )}
+            {isAdmin && editing && (
+              <div>
+                <label htmlFor="photo">Upload Photo:</label>
+                <input type="file" id="photo" onChange={handlePhotoUpload} />
+              </div>
+            )}
+          </div>
 
         {/* Map Section */}
         <div className="map-section">

@@ -241,3 +241,11 @@
   .update-form button[type="button"]:hover {
     background-color: #c0392b;
   }
+
+  .restaurant-photo {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }

@@ -2,6 +2,35 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const { authenticate, authorizeAdmin } = require('./auth');
+const multer = require('multer');
+const path = require('path');
+
+// multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); 
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
+
+// Upload a photo for a restaurant
+router.post('/restaurants/:id/photo', authenticate, authorizeAdmin, upload.single('photo'), async (req, res) => {
+  const { id } = req.params;
+  const photoPath = `/uploads/${req.file.filename}`; // Path to the uploaded photo
+
+  try {
+    
+    await db.query('UPDATE restaurants SET photos = ? WHERE id = ?', [photoPath, id]);
+    res.json({ message: 'Photo uploaded successfully', photo_src: photoPath });
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    res.status(500).json({ error: 'Failed to upload photo' });
+  }
+});
+
 
 // Fetch all restaurants
 router.get('/restaurants', authenticate, authorizeAdmin, async (req, res) => {

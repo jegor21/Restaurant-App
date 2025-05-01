@@ -187,7 +187,7 @@ function Restaurants() {
             >
               <div className="image-wrapper">
                 <img
-                  src={restaurant.photos || fallbackImage}
+                  src={`http://localhost:5000${restaurant.photos || '/uploads/no-photo.jpg'}`}
                   alt={restaurant.name}
                   className="restaurant-image"
                   onError={(e) => { e.target.src = fallbackImage; }}
