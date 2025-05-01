@@ -124,6 +124,71 @@ router.post('/', authenticate, async (req, res) => {
   }
 });
 
+// GET all comments for a restaurant
+router.get('/:place_id/comments', async (req, res) => {
+  const { place_id } = req.params;
+
+  try {
+    const [comments] = await db.query(
+      `SELECT c.id, c.comment, c.created_at, u.username 
+       FROM comments c 
+       JOIN users u ON c.user_id = u.id 
+       WHERE c.place_id = ? 
+       ORDER BY c.created_at DESC`,
+      [place_id]
+    );
+
+    res.json(comments);
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ error: 'Failed to fetch comments' });
+  }
+});
+
+// POST a comment for a restaurant
+router.post('/:place_id/comments', authenticate, async (req, res) => {
+  const { place_id } = req.params;
+  const { comment } = req.body;
+  const userId = req.user.id;
+
+  if (!comment || comment.trim().length === 0) {
+    return res.status(400).json({ error: 'Comment cannot be empty' });
+  }
+
+  if (comment.length > 250) {
+    return res.status(400).json({ error: 'Comment exceeds the maximum length of 250 characters' });
+  }
+
+  try {
+    // Check if the restaurant exists
+    const [restaurant] = await db.query('SELECT * FROM restaurants WHERE place_id = ?', [place_id]);
+    if (restaurant.length === 0) {
+      return res.status(404).json({ error: 'Restaurant not found' });
+    }
+
+    // Insert the comment into the database
+    const [result] = await db.query(
+      'INSERT INTO comments (place_id, user_id, comment) VALUES (?, ?, ?)',
+      [place_id, userId, comment]
+    );
+
+    // Fetch the username of the user who posted the comment
+    const [user] = await db.query('SELECT username FROM users WHERE id = ?', [userId]);
+
+    res.status(201).json({
+      id: result.insertId,
+      place_id,
+      user_id: userId,
+      username: user[0].username,
+      comment,
+      created_at: new Date(),
+    });
+  } catch (error) {
+    console.error('Error posting comment:', error);
+    res.status(500).json({ error: 'Failed to post comment' });
+  }
+});
+
 // DELETE all restaurants
 router.delete('/:id', authenticate, authorizeAdmin, async (req, res) => {
   try {

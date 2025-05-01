@@ -4,16 +4,18 @@ import { UserContext } from "../UserContext";
 import "./../styles/RestaurantDetails.css";
 
 const RestaurantDetails = () => {
-  const { place_id } = useParams(); 
+  const { place_id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useContext(UserContext);
   const [restaurant, setRestaurant] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
-  const [likes, setLikes] = useState(0);
-  const [dislikes, setDislikes] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState("newest");
+  const commentsPerPage = 5;
+  const commentLimit = 250;
 
   useEffect(() => {
     const fetchRestaurantDetails = async () => {
@@ -24,9 +26,14 @@ const RestaurantDetails = () => {
         }
         const data = await response.json();
         setRestaurant(data);
-        setLikes(data.likes || 0);
-        setDislikes(data.dislikes || 0);
-        setComments(data.comments || []);
+
+        // Fetch comments
+        const commentsResponse = await fetch(`http://localhost:5000/api/restaurants/${place_id}/comments`);
+        if (!commentsResponse.ok) {
+          throw new Error(`HTTP error! status: ${commentsResponse.status}`);
+        }
+        const commentsData = await commentsResponse.json();
+        setComments(commentsData);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -40,7 +47,11 @@ const RestaurantDetails = () => {
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      alert("Please log in to comment.");
+      alert("Please log in to leave a comment.");
+      return;
+    }
+    if (newComment.trim().length === 0) {
+      alert("Comment cannot be empty.");
       return;
     }
     try {
@@ -54,53 +65,30 @@ const RestaurantDetails = () => {
       });
       if (response.ok) {
         const newCommentData = await response.json();
-        setComments([...comments, newCommentData]);
+        setComments([newCommentData, ...comments]);
         setNewComment("");
+        setCurrentPage(1);
       }
     } catch (error) {
       console.error("Error adding comment:", error);
     }
   };
 
-  const handleLike = async () => {
-    if (!isAuthenticated) {
-      alert("Please log in to like.");
-      return;
-    }
-    try {
-      const response = await fetch(`http://localhost:5000/api/restaurants/${place_id}/like`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      if (response.ok) {
-        setLikes(likes + 1);
-      }
-    } catch (error) {
-      console.error("Error liking restaurant:", error);
-    }
-  };
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  const handleDislike = async () => {
-    if (!isAuthenticated) {
-      alert("Please log in to dislike.");
-      return;
+  // Sort comments based on the selected order
+  const sortedComments = [...comments].sort((a, b) => {
+    if (sortOrder === "newest") {
+      return new Date(b.created_at) - new Date(a.created_at); // Newest first
+    } else {
+      return new Date(a.created_at) - new Date(b.created_at); // Oldest first
     }
-    try {
-      const response = await fetch(`http://localhost:5000/api/restaurants/${place_id}/dislike`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      if (response.ok) {
-        setDislikes(dislikes + 1);
-      }
-    } catch (error) {
-      console.error("Error disliking restaurant:", error);
-    }
-  };
+  });
+
+  // Calculate the comments to display for the current page
+  const indexOfLastComment = currentPage * commentsPerPage;
+  const indexOfFirstComment = indexOfLastComment - commentsPerPage;
+  const currentComments = sortedComments.slice(indexOfFirstComment, indexOfLastComment);
 
   if (loading) {
     return <p className="loading-text">Loading restaurant details...</p>;
@@ -124,35 +112,113 @@ const RestaurantDetails = () => {
     );
   }
 
+  const handleGoogleSearch = () => {
+    const query = `${restaurant.name}, ${restaurant.address}, ${restaurant.city}`;
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, "_blank");
+  };
+
+  const handleGoogleMaps = () => {
+    const { lat, lng } = restaurant;
+    window.open(`https://www.google.com/maps?q=${lat},${lng}`, "_blank");
+  };
+
   return (
     <div className="restaurant-details">
       <button onClick={() => navigate(-1)} className="back-button">Go Back</button>
-      <h2>{restaurant.name}</h2>
-      <p><strong>Address:</strong> {restaurant.address}</p>
-      <p><strong>Rating:</strong> {restaurant.rating} ({restaurant.total_ratings} reviews)</p>
+      <div className="top-section">
+        {/* Photos Section */}
+        <div className="photos-section">
+          <h3>Photos</h3>
+          <p>Photo gallery will be displayed here.</p>
+        </div>
 
-      <div className="like-dislike">
-        <button onClick={handleLike} className="like-button">👍 {likes}</button>
-        <button onClick={handleDislike} className="dislike-button">👎 {dislikes}</button>
+        {/* Map Section */}
+        <div className="map-section">
+          <h3>Map</h3>
+          <p>Map showing the location of the restaurant will be displayed here.</p>
+          <p><strong>Latitude:</strong> {restaurant.lat}</p>
+          <p><strong>Longitude:</strong> {restaurant.lng}</p>
+          <button onClick={handleGoogleSearch} className="google-button">
+            Search on Google
+          </button>
+          <button onClick={handleGoogleMaps} className="google-button">
+            Open in Google Maps
+          </button>
+        </div>
+      </div>
+
+      {/* Info Section */}
+      <div className="info-section">
+        <h3>Restaurant Information</h3>
+        <p><strong>Name:</strong> {restaurant.name}</p>
+        <p><strong>Address:</strong> {restaurant.address}</p>
+        <p><strong>City:</strong> {restaurant.city || "Unknown City"}</p>
+        <p><strong>Rating:</strong> {restaurant.rating} ({restaurant.total_ratings} reviews)</p>
       </div>
 
       <div className="comments-section">
-        <h3>Comments</h3>
-        {comments.map((comment, index) => (
-          <p key={index} className="comment">{comment}</p>
-        ))}
+        <h3>Leave a Comment</h3>
         {isAuthenticated ? (
           <form onSubmit={handleCommentSubmit}>
             <textarea
               value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
+              onChange={(e) => {
+                if (e.target.value.length <= commentLimit) {
+                  setNewComment(e.target.value);
+                }
+              }}
               placeholder="Add a comment..."
+              maxLength={commentLimit}
               required
             />
+            <p className="comment-limit">
+              {newComment.length}/{commentLimit} characters
+            </p>
             <button type="submit">Submit</button>
           </form>
         ) : (
           <p>Please log in to leave a comment.</p>
+        )}
+
+        <h3>Comments</h3>
+
+        {/* Sorting Dropdown */}
+        <div className="sorting">
+          <label htmlFor="sortOrder">Sort by:</label>
+          <select
+            id="sortOrder"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
+
+        {comments.length === 0 ? (
+          <p>No comments yet. Be the first to comment!</p>
+        ) : (
+          currentComments.map((comment) => (
+            <div key={comment.id} className="comment">
+              <p><strong>{comment.username}:</strong> {comment.comment}</p>
+              <small>Posted on: {new Date(comment.created_at).toLocaleString()}</small>
+            </div>
+          ))
+        )}
+
+        {/* Pagination */}
+        {comments.length > commentsPerPage && (
+          <div className="pagination">
+            {Array.from({ length: Math.ceil(comments.length / commentsPerPage) }, (_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => paginate(index + 1)}
+                className={currentPage === index + 1 ? "active" : ""}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </div>
