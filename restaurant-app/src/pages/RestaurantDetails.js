@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useParams, useNavigate } from "react-router-dom";
 import { UserContext } from "../UserContext";
 import "./../styles/RestaurantDetails.css";
@@ -44,6 +45,8 @@ const RestaurantDetails = () => {
 
     fetchRestaurantDetails();
   }, [place_id]);
+
+  
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
@@ -251,12 +254,25 @@ const RestaurantDetails = () => {
         {/* Map Section */}
         <div className="map-section">
           <h3>Map</h3>
-          <p>Map showing the location of the restaurant will be displayed here.</p>
-          <p><strong>Latitude:</strong> {restaurant.lat}</p>
-          <p><strong>Longitude:</strong> {restaurant.lng}</p>
-          <button onClick={handleGoogleSearch} className="google-button">
-            Search on Google
-          </button>
+          {restaurant.lat && restaurant.lng ? (
+            <MapContainer
+              center={[restaurant.lat, restaurant.lng]}
+              zoom={15}
+              style={{ height: "300px", width: "100%", borderRadius: "8px" }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <Marker position={[restaurant.lat, restaurant.lng]}>
+                <Popup>
+                  {restaurant.name} <br /> {restaurant.address}
+                </Popup>
+              </Marker>
+            </MapContainer>
+          ) : (
+            <p>Location data is not available for this restaurant.</p>
+          )}
           <button onClick={handleGoogleMaps} className="google-button">
             Open in Google Maps
           </button>
@@ -323,6 +339,9 @@ const RestaurantDetails = () => {
             <p><strong>Address:</strong> {restaurant.address}</p>
             <p><strong>City:</strong> {restaurant.city || "Unknown City"}</p>
             <p><strong>Rating:</strong> {restaurant.rating} ({restaurant.total_ratings} reviews)</p>
+            <button onClick={handleGoogleSearch} className="google-button">
+            Search on Google
+          </button>
           </>
         )}
       </div>
