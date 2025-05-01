@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './Home';
 import Restaurants from './components/Restaurants';
@@ -12,14 +12,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { UserContext } from './UserContext';
 import PasswordReset from './pages/PasswordReset';
 import AdminPage from "./pages/AdminPage";
+import ManageComments from "./pages/ManageComments";
 import EmailConfirmationSuccess from './pages/EmailConfirmationSuccess';
 
 function App() {
-  const { user, refreshUser } = useContext(UserContext);
-
-  useEffect(() => {
-    refreshUser();
-  });
+  const { user, isAuthenticated, logout } = useContext(UserContext);
 
   return (
     <Router>
@@ -33,21 +30,17 @@ function App() {
             {user?.role === "admin" && (
               <li><Link to="/admin">Admin</Link></li>
             )}
-            <UserContext.Consumer>
-              {({ isAuthenticated, user, logout }) => (
-                isAuthenticated ? (
-                  <>
-                    <li>Hello, {user?.username}!</li>
-                    <li><button onClick={logout} className="logout-button">Logout</button></li>
-                  </>
-                ) : (
-                  <>
-                    <li><Link to="/login">Login</Link></li>
-                    <li><Link to="/register">Register</Link></li>
-                  </>
-                )
-              )}
-            </UserContext.Consumer>
+            {isAuthenticated ? (
+              <>
+                <li>Hello, {user?.username}!</li>
+                <li><button onClick={logout} className="logout-button">Logout</button></li>
+              </>
+            ) : (
+              <>
+                <li><Link to="/login">Login</Link></li>
+                <li><Link to="/register">Register</Link></li>
+              </>
+            )}
           </ul>
         </nav>
 
@@ -56,13 +49,9 @@ function App() {
           <Route path="/restaurants" element={<Restaurants />} />
           <Route path="/restaurants/:place_id" element={<RestaurantDetails />} />
           <Route path="/map" element={
-            <UserContext.Consumer>
-              {({ isAuthenticated }) => (
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <Map />
-                </ProtectedRoute>
-              )}
-            </UserContext.Consumer>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <Map />
+            </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />
           <Route path="/password-recovery" element={<PasswordRecovery />} />
@@ -71,6 +60,7 @@ function App() {
           <Route path="/email-confirmation-success" element={<EmailConfirmationSuccess />} />
           <Route path="*" element={<div>404 Not Found</div>} />
           {user?.role === "admin" && <Route path="/admin" element={<AdminPage />} />}
+          {user?.role === "admin" && <Route path="/admin/comments" element={<ManageComments />} />}
         </Routes>
       </div>
     </Router>

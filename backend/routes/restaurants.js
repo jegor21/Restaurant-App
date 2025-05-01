@@ -62,7 +62,7 @@ router.get('/', async (req, res) => {
     queryParams.push(Number(limit), Number(offset));
 
     const [rows] = await db.query(query, queryParams);
-    const [countResult] = await db.query(countQuery, queryParams.slice(0, 3)); // Use same search params for count
+    const [countResult] = await db.query(countQuery, queryParams.slice(0, 3));
     const total = countResult[0].total;
 
     res.json({ data: rows, total });
@@ -124,7 +124,6 @@ router.post('/', authenticate, async (req, res) => {
   }
 });
 
-// GET all comments for a restaurant
 router.get('/:place_id/comments', async (req, res) => {
   const { place_id } = req.params;
 
@@ -133,7 +132,7 @@ router.get('/:place_id/comments', async (req, res) => {
       `SELECT c.id, c.comment, c.created_at, u.username 
        FROM comments c 
        JOIN users u ON c.user_id = u.id 
-       WHERE c.place_id = ? 
+       WHERE c.place_id = ? AND c.status = "approved" 
        ORDER BY c.created_at DESC`,
       [place_id]
     );
@@ -191,90 +190,6 @@ router.post('/:place_id/comments', authenticate, async (req, res) => {
 });
 
 
-// CRUD Operations for Restaurants
-router.get('/admin/restaurants', authenticate, authorizeAdmin, async (req, res) => {
-  try {
-    const [restaurants] = await db.query('SELECT * FROM restaurants');
-    res.json(restaurants);
-  } catch (error) {
-    console.error('Error fetching restaurants:', error);
-    res.status(500).json({ error: 'Failed to fetch restaurants' });
-  }
-});
-
-router.post('/admin/restaurants', authenticate, authorizeAdmin, async (req, res) => {
-  const { name, address, city, lat, lng, rating } = req.body;
-  try {
-    const [result] = await db.query(
-      'INSERT INTO restaurants (name, address, city, lat, lng, rating) VALUES (?, ?, ?, ?, ?, ?)',
-      [name, address, city, lat, lng, rating]
-    );
-    res.status(201).json({ id: result.insertId, name, address, city, lat, lng, rating });
-  } catch (error) {
-    console.error('Error adding restaurant:', error);
-    res.status(500).json({ error: 'Failed to add restaurant' });
-  }
-});
-
-router.put('/admin/restaurants/:id', authenticate, authorizeAdmin, async (req, res) => {
-  const { id } = req.params;
-  const { name, address, city, lat, lng, rating } = req.body;
-  try {
-    await db.query(
-      'UPDATE restaurants SET name = ?, address = ?, city = ?, lat = ?, lng = ?, rating = ? WHERE id = ?',
-      [name, address, city, lat, lng, rating, id]
-    );
-    res.json({ id, name, address, city, lat, lng, rating });
-  } catch (error) {
-    console.error('Error updating restaurant:', error);
-    res.status(500).json({ error: 'Failed to update restaurant' });
-  }
-});
-
-router.delete('/admin/restaurants/:id', authenticate, authorizeAdmin, async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db.query('DELETE FROM restaurants WHERE id = ?', [id]);
-    res.json({ message: 'Restaurant deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting restaurant:', error);
-    res.status(500).json({ error: 'Failed to delete restaurant' });
-  }
-});
-
-// Approve, Reject, or Delete Comments
-router.put('/admin/comments/:id/approve', authenticate, authorizeAdmin, async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db.query('UPDATE comments SET status = "approved" WHERE id = ?', [id]);
-    res.json({ message: 'Comment approved successfully' });
-  } catch (error) {
-    console.error('Error approving comment:', error);
-    res.status(500).json({ error: 'Failed to approve comment' });
-  }
-});
-
-router.put('/admin/comments/:id/reject', authenticate, authorizeAdmin, async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db.query('UPDATE comments SET status = "rejected" WHERE id = ?', [id]);
-    res.json({ message: 'Comment rejected successfully' });
-  } catch (error) {
-    console.error('Error rejecting comment:', error);
-    res.status(500).json({ error: 'Failed to reject comment' });
-  }
-});
-
-router.delete('/admin/comments/:id', authenticate, authorizeAdmin, async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db.query('DELETE FROM comments WHERE id = ?', [id]);
-    res.json({ message: 'Comment deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting comment:', error);
-    res.status(500).json({ error: 'Failed to delete comment' });
-  }
-});
 
 // DELETE all restaurants
 router.delete('/:id', authenticate, authorizeAdmin, async (req, res) => {

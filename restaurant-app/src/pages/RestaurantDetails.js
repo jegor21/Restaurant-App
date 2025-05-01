@@ -64,9 +64,7 @@ const RestaurantDetails = () => {
         body: JSON.stringify({ comment: newComment }),
       });
       if (response.ok) {
-        const newCommentData = await response.json();
-        setComments([newCommentData, ...comments]);
-        setNewComment("");
+        setNewComment(""); // Clear the input field
         alert("Your comment has been submitted and is pending approval.");
       }
     } catch (error) {
@@ -86,10 +84,6 @@ const RestaurantDetails = () => {
     }
   });
 
-  // Calculate the comments to display for the current page
-  const indexOfLastComment = currentPage * commentsPerPage;
-  const indexOfFirstComment = indexOfLastComment - commentsPerPage;
-  const currentComments = sortedComments.slice(indexOfFirstComment, indexOfLastComment);
 
   if (loading) {
     return <p className="loading-text">Loading restaurant details...</p>;
@@ -196,10 +190,10 @@ const RestaurantDetails = () => {
           </select>
         </div>
 
-        {comments.length === 0 ? (
+        {sortedComments.length === 0 ? (
           <p>No comments yet. Be the first to comment!</p>
         ) : (
-          comments.map((comment) => (
+          sortedComments.map((comment) => (
             <div key={comment.id} className="comment">
               <p><strong>{comment.username}:</strong> {comment.comment}</p>
               <small>
