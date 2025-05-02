@@ -267,7 +267,7 @@ const RestaurantMap = () => {
                       hoveredPlaceId === place.place_id ? 50 : 32
                     ),
                   }}
-                  onClick={() => navigate(`/restaurants/${place.id || place.place_id}`)}
+                  onClick={() => window.open(`/restaurants/${place.place_id}`, "_blank")}
                   onMouseOver={() => {
                     setHoveredPlaceId(place.place_id);
                     resultRefs.current[place.place_id]?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -290,7 +290,7 @@ const RestaurantMap = () => {
                     <li
                       key={place.place_id}
                       ref={(el) => (resultRefs.current[place.place_id] = el)}
-                      onClick={() => navigate(`/restaurants/${place.place_id}`)}
+                      onClick={() => window.open(`/restaurants/${place.place_id}`, "_blank")}
                       onMouseEnter={() => setHoveredPlaceId(place.place_id)}
                       onMouseLeave={() => setHoveredPlaceId(null)}
                       className={`result-item ${hoveredPlaceId === place.place_id ? "hovered" : ""}`}

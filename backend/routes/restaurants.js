@@ -98,8 +98,16 @@ router.post('/', authenticate, async (req, res) => {
     for (const restaurant of restaurants) {
       const { place_id, name, lat, lng, address, rating, total_ratings } = restaurant;
 
+      
+      let cleanAddress = address;
+      if (address.includes(city)) {
+        cleanAddress = address.replace(city, '').trim(); 
+      }
 
-      const cleanAddress = address.split(',').slice(0, -1).join(',').trim();
+      
+      if (!cleanAddress || cleanAddress.trim() === '') {
+        cleanAddress = "Unknown Address";
+      }
 
       const [existing] = await db.query('SELECT * FROM restaurants WHERE place_id = ?', [place_id]);
       if (existing.length > 0) {

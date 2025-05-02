@@ -223,7 +223,9 @@ const RestaurantDetails = () => {
 
   return (
     <div className="restaurant-details">
-      <button onClick={() => navigate(-1)} className="back-button">Go Back</button>
+      <button onClick={() => navigate("/restaurants")} className="back-button">
+      Return to Restaurants
+    </button>
       {isAdmin && (
         <div className="admin-actions">
           <button onClick={() => setEditing(true)} className="update-button">Update Details</button>
