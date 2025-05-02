@@ -1,0 +1,11 @@
+{
+    "welcome": "Welcome to RestaurantApp",
+    "discover": "Discover the best restaurants in Tallinn",
+    "aboutTitle": "About the project",
+    "aboutText": "RestaurantApp helps you find the best restaurants nearby. Just pick a point on the map and see what's around!",
+    "mapButton": "Go to map",
+    "registerTitle": "Registration",
+    "registerText": "Register to save favorites, leave reviews, and get personalized recommendations.",
+    "registerButton": "Register"
+  }
+  

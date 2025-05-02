@@ -1,23 +1,20 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
 function Home() {
-  const navigate = useNavigate();
-
   return (
     <>
-      <header 
-        className="header" 
-        style={{ 
-          backgroundImage: "url('/images/tallinn-header.jpg')", 
-          backgroundSize: 'cover', 
-          backgroundPosition: 'center' 
+      <header
+        className="header"
+        style={{
+          backgroundImage: "url('/images/tallinn-header.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
         }}
       >
         <div className="overlay">
-          <h1>Добро пожаловать в RestaurantApp</h1>
-          <p>Откройте для себя лучшие рестораны Таллинна</p>
+          <h1>Welcome to RestaurantApp</h1>
+          <p>Discover the best restaurants in Tallinn</p>
         </div>
       </header>
 
@@ -32,22 +29,11 @@ function Home() {
         <div className="about-overlay">
           <h2>О проекте</h2>
           <p>
-            RestaurantApp помогает вам находить лучшие рестораны поблизости. 
-            Просто выберите точку на карте, и приложение автоматически покажет вам рестораны в этом районе. 
-            Идеально для тех, кто любит открывать новые места!
+            RestaurantApp создан для любителей хорошей еды. Здесь вы можете найти список лучших ресторанов Таллинна,
+            посмотреть их расположение на карте, прочитать описание и выбрать место по душе.
           </p>
-
-          <div className="button-container">
-            <button className="explore-button" onClick={() => navigate('/map')}>
-              Перейти к карте
-            </button>
-          </div>
         </div>
       </section>
-
-      <footer className="footer">
-        <p>&copy; {new Date().getFullYear()} RestaurantApp. Все права защищены.</p>
-      </footer>
     </>
   );
 }

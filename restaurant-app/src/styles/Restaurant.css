@@ -1,0 +1,140 @@
+.restaurant-page {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 30px;
+  background: linear-gradient(to right, #f0f4f8, #e0f7fa);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .restaurant-page .restaurant-title {
+    color: #2e7d32;
+  }
+  
+  .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 30px;
+  }
+  
+  .controls input,
+  .controls select,
+  .controls button {
+  padding: 10px 15px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  }
+  
+  .search-input {
+  width: 200px;
+  }
+  
+  .reset-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  font-weight: bold;
+  }
+  
+  .reset-button:hover {
+  background-color: #d32f2f;
+  }
+  
+  .restaurant-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  }
+  
+  .restaurant-card {
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  }
+  
+  .restaurant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .image-wrapper {
+  height: 200px;
+  overflow: hidden;
+  }
+  
+  .restaurant-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  }
+  
+  .restaurant-card:hover .restaurant-image {
+  transform: scale(1.05);
+  }
+  
+  .restaurant-info {
+  padding: 16px;
+  background-color: #fafafa;
+  }
+  
+  .restaurant-name {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #2e7d32;
+  }
+  
+  .restaurant-rating,
+  .restaurant-reviews,
+  .restaurant-address,
+  .restaurant-city {
+  font-size: 14px;
+  margin: 4px 0;
+  color: #555;
+  }
+  
+  .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin: 30px 0;
+  }
+  
+  .pagination-button {
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: none;
+  background-color: #2e7d32;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  }
+  
+  .pagination-button:hover {
+  background-color: #388e3c;
+  }
+  
+  .pagination-button.active {
+  background-color: #66bb6a;
+  font-weight: bold;
+  }
+  
+  .pagination .ellipsis {
+  font-size: 16px;
+  color: #999;
+  padding: 8px;
+  }
+  
+  
