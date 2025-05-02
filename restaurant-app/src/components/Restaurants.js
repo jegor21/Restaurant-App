@@ -10,44 +10,72 @@ function Restaurants() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  
+  const fallbackImage = "/images/no-photo.jpg";
+
   const queryParams = new URLSearchParams(location.search);
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "");
   const [sortOption, setSortOption] = useState(queryParams.get("sort") || "name");
   const [sortOrder, setSortOrder] = useState(queryParams.get("order") || "desc");
   const [totalRestaurants, setTotalRestaurants] = useState(0);
 
-  const fallbackImage = "/images/no-photo.jpg";
+  const randomImages = [
+    "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
+    "https://images.unsplash.com/photo-1552566626-52f8b828add9",
+    "https://images.unsplash.com/photo-1528605248644-14dd04022da1",
+    "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
+    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5",
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+    "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38",
+    "https://images.unsplash.com/photo-1505275350441-83dcda8eeef5",
+    "https://images.unsplash.com/photo-1497644083578-611b798c60f3",
+    "https://images.unsplash.com/photo-1585518419759-7fe2e0fbf8a6"
+  ];
+
+  const assignImagesToRestaurants = (data) => {
+    let storedImages = JSON.parse(localStorage.getItem("assignedRestaurantImages")) || {};
+    let availableImages = [...randomImages];
+  
+    const assigned = data.map((restaurant) => {
+      if (!storedImages[restaurant.id]) {
+        const image = availableImages.length > 0
+          ? availableImages.splice(Math.floor(Math.random() * availableImages.length), 1)[0]
+          : randomImages[Math.floor(Math.random() * randomImages.length)];
+  
+        storedImages[restaurant.id] = image;
+      }
+  
+      return {
+        ...restaurant,
+        photo: storedImages[restaurant.id],
+      };
+    });
+  
+    localStorage.setItem("assignedRestaurantImages", JSON.stringify(storedImages));
+    return assigned;
+  };
+  
 
   const fetchRestaurants = useCallback(async () => {
     try {
       const params = new URLSearchParams();
-  
-      if (searchQuery) {
-        params.append("search", searchQuery);
-      }
-  
+
+      if (searchQuery) params.append("search", searchQuery);
       if (sortOption) {
         params.append("sort", sortOption);
         params.append("order", sortOrder);
       }
-  
+
       params.append("page", currentPage);
       params.append("limit", itemsPerPage);
-  
+
       const response = await fetch(`http://localhost:5000/api/restaurants?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const { data, total } = await response.json(); 
-  
-      const restaurantsWithPhotos = data.map((restaurant) => ({
-        ...restaurant,
-        photos: restaurant.photos && restaurant.photos !== "null" ? restaurant.photos : fallbackImage,
-      }));
-  
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const { data, total } = await response.json();
+
+      const restaurantsWithPhotos = assignImagesToRestaurants(data);
       setRestaurants(restaurantsWithPhotos);
-      setTotalRestaurants(total); 
+      setTotalRestaurants(total);
     } catch (error) {
       console.error("Error fetching restaurants:", error);
     } finally {
@@ -59,7 +87,6 @@ function Restaurants() {
     fetchRestaurants();
   }, [fetchRestaurants, currentPage]);
 
-  // update the URL query parameters when search or sort changes
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.set("search", searchQuery);
@@ -67,11 +94,9 @@ function Restaurants() {
     if (sortOrder) params.set("order", sortOrder);
     params.set("page", currentPage);
     params.set("limit", itemsPerPage);
-
     navigate(`?${params.toString()}`, { replace: true });
   }, [searchQuery, sortOption, sortOrder, currentPage, itemsPerPage, navigate]);
 
-  // reset search and sorting to default values
   const resetFilters = () => {
     setSearchQuery("");
     setSortOption("name");
@@ -85,32 +110,28 @@ function Restaurants() {
       <h2 className="restaurant-title">Restaurants</h2>
 
       <div className="controls">
-        {/* search bar */}
         <input
           type="text"
           placeholder="Search restaurants..."
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value);
-            setCurrentPage(1); 
+            setCurrentPage(1);
           }}
           className="search-input"
         />
 
-        {/* sorting options */}
         <select value={sortOption} onChange={(e) => setSortOption(e.target.value)} className="sort-select">
           <option value="name">Sort by Name</option>
           <option value="rating">Sort by Rating</option>
           <option value="total_ratings">Sort by Reviews</option>
         </select>
 
-        {/* sorting order */}
         <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="order-select">
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
 
-        {/* items per page */}
         <select
           value={itemsPerPage}
           onChange={(e) => {
@@ -126,68 +147,26 @@ function Restaurants() {
 
         <button onClick={resetFilters} className="reset-button">Reset</button>
       </div>
-      
-      {/* Pagination Above */}
-      <div className="pagination">
-        <button
-          className="pagination-button"
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-        >
-          &laquo;
-        </button>
 
-        {Array.from({ length: Math.ceil(totalRestaurants / itemsPerPage) }, (_, index) => {
-          const page = index + 1;
-
-          if (
-            page === 1 ||
-            page === Math.ceil(totalRestaurants / itemsPerPage) ||
-            (page >= currentPage - 1 && page <= currentPage + 1)
-          ) {
-            return (
-              <button
-                key={page}
-                className={`pagination-button ${page === currentPage ? "active" : ""}`}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            );
-          }
-
-          if (
-            page === currentPage - 2 ||
-            page === currentPage + 2
-          ) {
-            return <span key={page} className="ellipsis">...</span>;
-          }
-
-          return null;
-        })}
-
-        <button
-          className="pagination-button"
-          disabled={currentPage === Math.ceil(totalRestaurants / itemsPerPage)}
-          onClick={() => setCurrentPage((prev) => prev + 1)}
-        >
-          &raquo;
-        </button>
-      </div>
-
-      {loading ? (
-        <p className="loading-text">Loading restaurants...</p>
-      ) : (
-        <div className="restaurant-list">
-          {restaurants.map((restaurant) => (
+      <div className="restaurant-list">
+        {loading ? (
+          <p className="loading-text">Loading restaurants...</p>
+        ) : (
+          restaurants.map((restaurant) => (
             <div
               key={restaurant.id}
               className="restaurant-card"
-              onClick={() => navigate(`/restaurants/${restaurant.place_id}`)}
+              onClick={() =>
+                navigate(`/restaurants/${restaurant.place_id}`, {
+                  state: { photo: restaurant.photo }
+                })
+              }              
+              
+              
             >
               <div className="image-wrapper">
                 <img
-                  src={`http://localhost:5000${restaurant.photos || '/uploads/no-photo.jpg'}`}
+                  src={restaurant.photo}
                   alt={restaurant.name}
                   className="restaurant-image"
                   onError={(e) => { e.target.src = fallbackImage; }}
@@ -201,56 +180,8 @@ function Restaurants() {
                 <p className="restaurant-city">City: {restaurant.city}</p>
               </div>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* Pagination Below */}
-      <div className="pagination">
-        <button
-          className="pagination-button"
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-        >
-          &laquo;
-        </button>
-
-        {Array.from({ length: Math.ceil(totalRestaurants / itemsPerPage) }, (_, index) => {
-          const page = index + 1;
-
-          if (
-            page === 1 ||
-            page === Math.ceil(totalRestaurants / itemsPerPage) ||
-            (page >= currentPage - 1 && page <= currentPage + 1)
-          ) {
-            return (
-              <button
-                key={page}
-                className={`pagination-button ${page === currentPage ? "active" : ""}`}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            );
-          }
-
-          if (
-            page === currentPage - 2 ||
-            page === currentPage + 2
-          ) {
-            return <span key={page} className="ellipsis">...</span>;
-          }
-
-          return null;
-        })}
-
-        <button
-          className="pagination-button"
-          disabled={currentPage === Math.ceil(totalRestaurants / itemsPerPage)}
-          onClick={() => setCurrentPage((prev) => prev + 1)}
-        >
-          &raquo;
-        </button>
+          ))
+        )}
       </div>
     </div>
   );

@@ -1,13 +1,47 @@
 import React, { useEffect, useState, useContext } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { UserContext } from "../UserContext";
 import "./../styles/RestaurantDetails.css";
 
+
+const randomImages = [
+  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
+  "https://images.unsplash.com/photo-1552566626-52f8b828add9",
+  "https://images.unsplash.com/photo-1528605248644-14dd04022da1",
+  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
+  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5",
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38",
+  "https://images.unsplash.com/photo-1505275350441-83dcda8eeef5",
+  "https://images.unsplash.com/photo-1497644083578-611b798c60f3",
+  "https://images.unsplash.com/photo-1585518419759-7fe2e0fbf8a6"
+];
+
+const getRandomImage = (id) => {
+  const hash = [...id].reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const index = hash % randomImages.length;
+  return randomImages[index];
+};
+
 const RestaurantDetails = () => {
   const { place_id } = useParams();
+  const [randomImage, setRandomImage] = useState(() => {
+    const savedImage = localStorage.getItem(`restaurantImage_${place_id}`);
+    if (savedImage) return savedImage;
+  
+    const index = Math.floor(Math.random() * randomImages.length);
+    const image = randomImages[index];
+    localStorage.setItem(`restaurantImage_${place_id}`, image);
+    return image;
+  });
+  
+  const location = useLocation();
+  const passedPhoto = location.state?.photo;
+
   const navigate = useNavigate();
   const { isAuthenticated, isAdmin } = useContext(UserContext);
+  const assignedPhoto = location.state?.photo || null;
   const [restaurant, setRestaurant] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -46,8 +80,31 @@ const RestaurantDetails = () => {
     fetchRestaurantDetails();
   }, [place_id]);
 
-  
 
+  const getAssignedImageFromLocalStorage = (restaurant) => {
+    const storedImages = JSON.parse(localStorage.getItem("assignedRestaurantImages")) || {};
+    return storedImages[restaurant.id] || storedImages[restaurant.place_id] || null;
+  };
+  
+  
+  
+  const getPhotoUrl = (restaurant) => {
+    if (restaurant.photos && restaurant.photos !== "null") {
+      return `http://localhost:5000${restaurant.photos}`;
+    }
+  
+    if (!restaurant || (!restaurant.id && !restaurant.place_id)) {
+      return randomImages[0]; // fallback пока нет данных
+    }
+  
+    const key = restaurant.id || restaurant.place_id || restaurant.name;
+    const hash = [...key.toString()].reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const index = hash % randomImages.length;
+    return randomImages[index];
+  };
+  
+      
+  
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -233,25 +290,23 @@ const RestaurantDetails = () => {
         </div>
       )}
       <div className="top-section">
-        {/* Photos Section */}
-          <div className="photos-section">
-            <h3>Photos</h3>
-            {restaurant.photos ? (
-              <img
-                src={`http://localhost:5000${restaurant.photos}`}
-                alt={restaurant.name}
-                className="restaurant-photo"
-              />
-            ) : (
-              <p>No photo available</p>
-            )}
-            {isAdmin && editing && (
-              <div>
-                <label htmlFor="photo">Upload Photo:</label>
-                <input type="file" id="photo" onChange={handlePhotoUpload} />
-              </div>
-            )}
-          </div>
+  <div className="photos-section">
+    <h3>Photo</h3>
+    <img
+  src={randomImage}
+  alt={restaurant.name}
+  className="restaurant-photo"
+/>
+
+
+    {isAdmin && editing && (
+      <div>
+        <label htmlFor="photo">Upload Photo:</label>
+        <input type="file" id="photo" onChange={handlePhotoUpload} />
+      </div>
+    )}
+  </div>
+
 
         {/* Map Section */}
         <div className="map-section">
@@ -421,4 +476,4 @@ const RestaurantDetails = () => {
   );
 };
 
-export default RestaurantDetails;
+export default RestaurantDetails; 

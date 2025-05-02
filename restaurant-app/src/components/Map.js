@@ -306,9 +306,6 @@ const RestaurantMap = () => {
         </div>
       </div>
 
-      <footer className="footer">
-        <p>&copy; {new Date().getFullYear()} RestaurantApp. All rights reserved.</p>
-      </footer>
     </div>
   );
 };

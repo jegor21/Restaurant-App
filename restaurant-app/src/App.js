@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+
 import Home from './Home';
 import Restaurants from './components/Restaurants';
 import RestaurantDetails from "./pages/RestaurantDetails";
-import './styles/index.css';
 import Map from './components/Map';
 import Login from './pages/Login';
 import PasswordRecovery from './pages/PasswordRecovery';
@@ -15,6 +15,8 @@ import AdminPage from "./pages/AdminPage";
 import ManageComments from "./pages/ManageComments";
 import EmailConfirmationSuccess from './pages/EmailConfirmationSuccess';
 
+import './styles/index.css';
+
 function App() {
   const { user, isAuthenticated, logout } = useContext(UserContext);
 
@@ -23,6 +25,11 @@ function App() {
       <div className="app">
         <nav className="navbar">
           <div className="logo">RestaurantApp</div>
+          <input type="checkbox" id="nav-toggle" className="nav-toggle" />
+          <label htmlFor="nav-toggle" className="nav-toggle-label">
+            <span></span>
+          </label>
+
           <ul className="nav-links">
             <li><Link to="/">Main</Link></li>
             <li><Link to="/restaurants">Restaurant</Link></li>
@@ -32,7 +39,7 @@ function App() {
             )}
             {isAuthenticated ? (
               <>
-                <li>Hello, {user?.username}!</li>
+                <li className="welcome-user">Hi, {user?.username}</li>
                 <li><button onClick={logout} className="logout-button">Logout</button></li>
               </>
             ) : (
@@ -42,26 +49,38 @@ function App() {
               </>
             )}
           </ul>
+
+
+
         </nav>
 
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/restaurants" element={<Restaurants />} />
-          <Route path="/restaurants/:place_id" element={<RestaurantDetails />} />
-          <Route path="/map" element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <Map />
-            </ProtectedRoute>
-          } />
-          <Route path="/login" element={<Login />} />
-          <Route path="/password-recovery" element={<PasswordRecovery />} />
-          <Route path="/password-reset" element={<PasswordReset />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/email-confirmation-success" element={<EmailConfirmationSuccess />} />
-          <Route path="*" element={<div>404 Not Found</div>} />
-          {user?.role === "admin" && <Route path="/admin" element={<AdminPage />} />}
-          {user?.role === "admin" && <Route path="/admin/comments" element={<ManageComments />} />}
-        </Routes>
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/restaurants" element={<Restaurants />} />
+            <Route path="/restaurants/:place_id" element={<RestaurantDetails />} />
+            <Route
+              path="/map"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <Map />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/login" element={<Login />} />
+            <Route path="/password-recovery" element={<PasswordRecovery />} />
+            <Route path="/password-reset" element={<PasswordReset />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/email-confirmation-success" element={<EmailConfirmationSuccess />} />
+            <Route path="*" element={<div>404 Not Found</div>} />
+            {user?.role === "admin" && <Route path="/admin" element={<AdminPage />} />}
+            {user?.role === "admin" && <Route path="/admin/comments" element={<ManageComments />} />}
+          </Routes>
+        </main>
+
+        <footer className="footer">
+          <p>&copy; {new Date().getFullYear()} RestaurantApp. All rights reserved. 2025</p>
+        </footer>
       </div>
     </Router>
   );

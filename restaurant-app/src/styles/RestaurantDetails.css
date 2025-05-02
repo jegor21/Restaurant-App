@@ -139,20 +139,20 @@
   }
 
   .sorting {
-    margin-bottom: 15px;
     display: flex;
     align-items: center;
+    margin-bottom: 15px;
     gap: 10px;
   }
   
   .sorting label {
-    font-weight: bold;
+    font-weight: 600;
   }
   
   .sorting select {
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
+    padding: 6px;
+    border: 1px solid var(--light-border);
+    border-radius: 5px;
   }
 
   .google-button {
