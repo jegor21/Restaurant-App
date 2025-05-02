@@ -1,27 +1,26 @@
-
-body {
-  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+/* Общий фон и сброс */
+html, body {
+  height: 100%;
   margin: 0;
+  padding: 0;
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
   font-family: 'Poppins', sans-serif;
 }
 
+/* Хедер */
 .header {
   position: relative;
   padding: 6rem 2rem;
   color: #e0f7fa;
   text-align: center;
-  transition: transform 0.5s ease;
   overflow: hidden;
-}
-
-.header:hover {
-  transform: scale(1.02);
 }
 
 .overlay {
   background-color: rgba(0, 0, 0, 0.5);
   padding: 4rem 2rem;
-  border-radius: 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
 }
 
 .header h1 {
@@ -36,51 +35,90 @@ body {
   font-weight: 400;
 }
 
-.about {
-  padding: 4rem 2rem;
-  border-radius: 12px;
-  max-width: 960px;
-  margin: 3rem auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  color: #e0f7fa;
+/* Карточки */
+.info-section {
+  display: flex;
+  justify-content: space-between;
+  gap: 3rem;
+  max-width: 1400px;
+  margin: 4rem auto;
+  padding: 0 2rem;
+  flex-wrap: wrap;
+}
+
+.info-card {
   position: relative;
+  flex: 1;
+  min-width: 300px;
+  height: 480px;
+  border-radius: 24px;
   overflow: hidden;
+  background: transparent !important;
+  box-shadow: none !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition: transform 0.3s ease;
 }
 
-.about-overlay {
-  background-color: rgba(0, 0, 0, 0.6);
+.info-card:hover {
+  transform: scale(1.02);
+}
+
+.card-bg,
+.card-video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  filter: brightness(0.5);
+}
+
+.card-content {
+  position: relative;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.45); /* уменьшено */
+  backdrop-filter: blur(2px);
   padding: 2rem;
-  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  border-radius: 24px;
 }
 
-.about h2 {
+.card-content h2 {
   font-size: 2rem;
-  color: #38bdf8;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
+  color: #ffffff !important;
+  margin-bottom: 1rem;
+  text-shadow: 1px 1px 3px #000;
 }
 
-.about p {
-  font-size: 1.1rem;
+.card-content p {
+  font-size: 1.15rem;
   line-height: 1.8;
-  font-weight: 400;
+  color: #ffffff !important;
+  text-shadow: 1px 1px 2px #000;
+  flex-grow: 1;
 }
 
-.button-container {
-  text-align: center;
-  margin-top: 2rem;
-}
-
+/* Кнопки */
 .explore-button {
   background-color: #38bdf8;
   color: #0d1b2a;
-  padding: 12px 30px;
+  padding: 12px 24px;
   font-size: 1.1rem;
   border: none;
   border-radius: 12px;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+  margin-top: 1rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
 .explore-button:hover {
@@ -88,21 +126,50 @@ body {
   transform: scale(1.05);
 }
 
-.footer {
-  background-color: #0d1b2a;
-  padding: 1.5rem;
-  font-size: 0.95rem;
-  color: #94a3b8;
-  text-align: center;
-  margin-top: auto;
+/* Адаптивность */
+@media (max-width: 960px) {
+  .info-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .info-card {
+    width: 100%;
+    height: auto;
+  }
+
+  .card-content {
+    padding: 1.5rem;
+  }
 }
 
-@media (max-width: 768px) {
-  .header h1 {
-      font-size: 2rem;
-  }
+/* Удаление белых фонов */
+section, main, .info-section, .info-card {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
 
-  .about {
-      padding: 2rem 1.5rem;
+/* Анимации при прокрутке */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
 }

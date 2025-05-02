@@ -1,7 +1,7 @@
 /* Updated Stylish Map Page Styles */
 
 .map-container {
-  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  background: linear-gradient(to right, #0f2027, #222e57, #1c1c3e);
   min-height: 100vh;
   padding: 2rem;
   box-sizing: border-box;
