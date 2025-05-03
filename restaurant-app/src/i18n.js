@@ -6,17 +6,21 @@ import en from './locales/en.json';
 import ru from './locales/ru.json';
 
 i18n
-  .use(LanguageDetector)
+  .use(LanguageDetector) // <-- обязательно
   .use(initReactI18next)
   .init({
     resources: {
       en: { translation: en },
-      ru: { translation: ru }
+      ru: { translation: ru },
     },
     fallbackLng: 'en',
     interpolation: {
-      escapeValue: false
-    }
+      escapeValue: false,
+    },
+    detection: {
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage'], // <--- обязательно, чтобы язык сохранялся
+    },
   });
 
 export default i18n;

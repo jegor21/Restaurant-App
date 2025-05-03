@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import Home from './Home';
 import Restaurants from './components/Restaurants';
@@ -19,34 +20,40 @@ import './styles/index.css';
 
 function App() {
   const { user, isAuthenticated, logout } = useContext(UserContext);
+  const { t, i18n } = useTranslation();
 
   return (
     <Router>
       <div className="app">
         <nav className="navbar">
-          <div className="logo">🍽️ RestaurantApp</div>
+          <div className="navbar-left">
+            <div className="logo">🍽️ RestaurantApp
+            <div className="lang-switcher">
+            <button onClick={() => i18n.changeLanguage('en')}>EN</button>
+            <button onClick={() => i18n.changeLanguage('ru')}>RU</button>
+            </div>
+          </div>
+          </div>
+
           <ul className="nav-links">
-            <li><Link to="/">Main</Link></li>
-            <li><Link to="/restaurants">Restaurant</Link></li>
-            <li><Link to="/map">Map</Link></li>
+            <li><Link to="/">{t('main')}</Link></li>
+            <li><Link to="/restaurants">{t('restaurant')}</Link></li>
+            <li><Link to="/map">{t('map')}</Link></li>
             {user?.role === "admin" && (
-              <li><Link to="/admin">Admin</Link></li>
+              <li><Link to="/admin">{t('admin')}</Link></li>
             )}
             {isAuthenticated ? (
               <>
-                <li className="welcome-user">Hi, {user?.username}</li>
-                <li><button onClick={logout} className="logout-button">Logout</button></li>
+                <li className="welcome-user">{t('welcomeUser')}, {user?.username}</li>
+                <li><button onClick={logout} className="logout-button">{t('logout')}</button></li>
               </>
             ) : (
               <>
-                <li><Link to="/login">Login</Link></li>
-                <li><Link to="/register">Register</Link></li>
+                <li><Link to="/login">{t('login')}</Link></li>
+                <li><Link to="/register">{t('register')}</Link></li>
               </>
             )}
           </ul>
-
-
-
         </nav>
 
         <main className="main-content">

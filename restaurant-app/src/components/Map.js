@@ -3,6 +3,8 @@ import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../UserContext"; 
 import "./../styles/Map.css";
+import { useTranslation } from 'react-i18next';
+
 
 const containerStyle = {
   width: "100%",
@@ -28,6 +30,8 @@ const RestaurantMap = () => {
   const previewCircleRef = useRef(null);
   const [hoveredPlaceId, setHoveredPlaceId] = useState(null);
   const resultRefs = useRef({});
+  const { t } = useTranslation();
+
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,

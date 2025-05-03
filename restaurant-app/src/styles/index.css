@@ -40,13 +40,18 @@ ul {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+.navbar-left {
+  display: flex;
+  align-items: center;
+}
+
 .logo {
   font-size: 1.6rem;
   font-weight: 700;
   color: #ffffff;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.5rem; 
 }
 
 .logo::before {
@@ -200,18 +205,17 @@ ul {
 
 .lang-switcher {
   display: flex;
-  gap: 0.5rem;
-  margin-left: 1rem;
+  gap: 0.3rem;
 }
 
 .lang-switcher button {
   background-color: #00b4d8;
   border: none;
   color: #0d1b2a;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 6px;
-  font-weight: bold;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }

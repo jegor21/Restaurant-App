@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { UserContext } from "../UserContext";
 import "./../styles/RestaurantDetails.css";
+import { useTranslation } from 'react-i18next';
 
 
 const randomImages = [
@@ -25,6 +26,7 @@ const getRandomImage = (id) => {
 };
 
 const RestaurantDetails = () => {
+  const { t } = useTranslation();
   const { place_id } = useParams();
   const [randomImage, setRandomImage] = useState(() => {
     const savedImage = localStorage.getItem(`restaurantImage_${place_id}`);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { useTranslation } from 'react-i18next';
 import "./Map.css";
 
 const containerStyle = {
@@ -20,7 +21,8 @@ const RestaurantMap = () => {
   const circleRef = useRef(null);
   const previewCircleRef = useRef(null);
 
-  // Новый способ загрузки карты
+  const { t, i18n } = useTranslation(); // 👈 получаем t и i18n
+
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries: ["places"],
@@ -40,7 +42,6 @@ const RestaurantMap = () => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         setRestaurants(results);
         setHasSearched(true);
-
         results.forEach(saveRestaurantToDB);
       } else {
         console.error("Error with searching restaurants:", status);
@@ -65,6 +66,7 @@ const RestaurantMap = () => {
       strokeWeight: 2,
       clickable: false,
     });
+
     circle.setMap(mapRef.current);
     circleRef.current = circle;
   }, [searchPoint]);
@@ -116,6 +118,7 @@ const RestaurantMap = () => {
       strokeWeight: 2,
       clickable: false,
     });
+
     previewCircle.setMap(mapRef.current);
     previewCircleRef.current = previewCircle;
   };
@@ -144,27 +147,25 @@ const RestaurantMap = () => {
   }, [isLoaded, fetchRestaurants, searchPoint, hasSearched, updateRadiusCircle]);
 
   if (loadError) {
-    return <div className="loading-text">Ошибка загрузки карты 😥</div>;
+    return <div className="loading-text">{t('mapLoadError')} 😥</div>;
   }
 
   if (!isLoaded) {
-    return <div className="loading-text">Загрузка карты...</div>;
+    return <div className="loading-text">{t('mapLoading')}...</div>;
   }
 
   return (
-    <div className="map-container">
+    <div key={i18n.language} className="map-container">
       <div className="map-page">
-        <h1 className="map-title">Поиск ресторанов на карте Таллинна</h1>
-        <p className="map-description">
-          Нажмите "Начать поиск", выберите точку на карте, и мы найдём для вас рестораны в радиусе 2 км!
-        </p>
+        <h1 className="map-title">{t('searchTitle')}</h1>
+        <p className="map-description">{t('searchInstructions')}</p>
 
         <div className="button-wrapper">
           <button
             onClick={togglePreview}
             className={`button ${isPreviewing ? "cancel" : ""}`}
           >
-            {isPreviewing ? "Отмена поиска" : "Начать поиск"}
+            {isPreviewing ? t('cancelSearch') : t('startSearch')}
           </button>
         </div>
 
@@ -178,17 +179,21 @@ const RestaurantMap = () => {
         >
           <Marker
             position={searchPoint}
-            title="Точка поиска"
+            title={t('searchPoint')}
             icon={{ url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" }}
           />
           {restaurants.map((place, index) => (
-            <Marker key={index} position={place.geometry.location} title={place.name} />
+            <Marker
+              key={index}
+              position={place.geometry.location}
+              title={place.name}
+            />
           ))}
         </GoogleMap>
       </div>
 
       <footer className="footer">
-        <p>&copy; {new Date().getFullYear()} RestaurantApp. Все права защищены.</p>
+        <p>&copy; {new Date().getFullYear()} RestaurantApp. {t('allRightsReserved')}</p>
       </footer>
     </div>
   );
