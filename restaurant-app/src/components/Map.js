@@ -11,20 +11,20 @@ const containerStyle = {
   height: "500px",
 };
 
-const defaultCenter = { lat: 59.437, lng: 24.7536 }; // cord of Tallinn
-const defaultRadius = 500; // radius of search (1 = 1 meter)
+const defaultCenter = { lat: 59.437, lng: 24.7536 }; 
+const defaultRadius = 500; 
 
 const libraries = ["places"];
 
 const RestaurantMap = () => {
-  const { isAuthenticated } = useContext(UserContext); // Access auth status
+  const { isAuthenticated } = useContext(UserContext); 
   const navigate = useNavigate(); 
   const [center] = useState(defaultCenter);
-  const [searchPoint, setSearchPoint] = useState(defaultCenter); // point of search, green mark on the center of circle
+  const [searchPoint, setSearchPoint] = useState(defaultCenter); 
   const [restaurants, setRestaurants] = useState([]);
-  const [hasSearched, setHasSearched] = useState(false); // check if search was done
-  const [isPreviewing, setIsPreviewing] = useState(false); // toggle preview mode
-  const [city, setCity] = useState("Tallinn"); // City of the search
+  const [hasSearched, setHasSearched] = useState(false); 
+  const [isPreviewing, setIsPreviewing] = useState(false); 
+  const [city, setCity] = useState("Tallinn"); 
   const mapRef = useRef(null);
   const circleRef = useRef(null);
   const previewCircleRef = useRef(null);
@@ -181,7 +181,7 @@ const RestaurantMap = () => {
 
   const togglePreview = () => {
     if (isPreviewing) {
-      // clear preview circle if toggling off
+
       if (previewCircleRef.current) {
         previewCircleRef.current.setMap(null);
         previewCircleRef.current = null;

@@ -65,7 +65,7 @@ const RestaurantDetails = () => {
         const data = await response.json();
         setRestaurant(data);
 
-        // Fetch comments
+
         const commentsResponse = await fetch(`http://localhost:5000/api/restaurants/${place_id}/comments`);
         if (!commentsResponse.ok) {
           throw new Error(`HTTP error! status: ${commentsResponse.status}`);
@@ -96,7 +96,7 @@ const RestaurantDetails = () => {
     }
   
     if (!restaurant || (!restaurant.id && !restaurant.place_id)) {
-      return randomImages[0]; // fallback пока нет данных
+      return randomImages[0]; 
     }
   
     const key = restaurant.id || restaurant.place_id || restaurant.name;
@@ -167,12 +167,12 @@ const RestaurantDetails = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Sort comments based on the selected order
+
   const sortedComments = [...comments].sort((a, b) => {
     if (sortOrder === "newest") {
-      return new Date(b.created_at) - new Date(a.created_at); // Newest first
+      return new Date(b.created_at) - new Date(a.created_at); 
     } else {
-      return new Date(a.created_at) - new Date(b.created_at); // Oldest first
+      return new Date(a.created_at) - new Date(b.created_at); 
     }
   });
 

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import Home from './Home';
+import Home from './pages/Home';
 import Restaurants from './components/Restaurants';
 import RestaurantDetails from "./pages/RestaurantDetails";
 import Map from './components/Map';

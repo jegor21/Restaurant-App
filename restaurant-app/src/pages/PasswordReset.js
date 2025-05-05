@@ -28,7 +28,7 @@ const PasswordReset = () => {
         setMessage(data.message);
         setError(null);
 
-        // Redirect to login page if process is success
+
         navigate('/login', { state: { successMessage: 'Password reset successfully. Please log in.' } });
       } else {
         const errorData = await response.json();

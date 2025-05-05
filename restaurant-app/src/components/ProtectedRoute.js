@@ -12,7 +12,6 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <div>Loading...</div>; 
   }
 
-  // If not auth, show a message and redirect to login
   if (!isAuthenticated) {
     if (!showMessage) {
       setShowMessage(true);

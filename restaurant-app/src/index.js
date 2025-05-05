@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './styles/index.css';
 
-import './i18n'; // ← должен быть ДО App
+import './i18n'; 
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 

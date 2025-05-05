@@ -1,8 +1,8 @@
 import React, { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { UserContext } from './UserContext';
-import './styles/Home.css';
+import { UserContext } from '../UserContext';
+import '../styles/Home.css';
 
 function Home() {
   const navigate = useNavigate();

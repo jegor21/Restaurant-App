@@ -54,8 +54,8 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    refreshUser(); // Refresh user data on app load
-  }, [refreshUser]); // Run only once when the component mounts
+    refreshUser(); 
+  }, [refreshUser]); 
 
   const isAdmin = user && user.role === 'admin';
 

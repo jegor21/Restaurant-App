@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { useTranslation } from 'react-i18next';
-import "./Map.css";
+import ".../styles/Map.css";
 
 const containerStyle = {
   width: "100%",
@@ -192,9 +192,6 @@ const RestaurantMap = () => {
         </GoogleMap>
       </div>
 
-      <footer className="footer">
-        <p>&copy; {new Date().getFullYear()} RestaurantApp. {t('allRightsReserved')}</p>
-      </footer>
     </div>
   );
 };

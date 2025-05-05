@@ -4,7 +4,6 @@ const db = require('../db');
 const { authenticate, authorizeAdmin } = require('./auth');
 const axios = require('axios'); 
 
-// Reverse Geocoding to Get City
 const getCityFromCoordinates = async (lat, lng) => {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;

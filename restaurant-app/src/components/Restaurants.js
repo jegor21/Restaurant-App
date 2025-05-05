@@ -2,6 +2,19 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./../styles/Restaurant.css";
 
+const randomImages = [
+  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
+  "https://images.unsplash.com/photo-1552566626-52f8b828add9",
+  "https://images.unsplash.com/photo-1528605248644-14dd04022da1",
+  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
+  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5",
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38",
+  "https://images.unsplash.com/photo-1505275350441-83dcda8eeef5",
+  "https://images.unsplash.com/photo-1497644083578-611b798c60f3",
+  "https://images.unsplash.com/photo-1585518419759-7fe2e0fbf8a6"
+];
+
 function Restaurants() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,20 +31,9 @@ function Restaurants() {
   const [sortOrder, setSortOrder] = useState(queryParams.get("order") || "desc");
   const [totalRestaurants, setTotalRestaurants] = useState(0);
 
-  const randomImages = [
-    "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
-    "https://images.unsplash.com/photo-1552566626-52f8b828add9",
-    "https://images.unsplash.com/photo-1528605248644-14dd04022da1",
-    "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
-    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5",
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
-    "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38",
-    "https://images.unsplash.com/photo-1505275350441-83dcda8eeef5",
-    "https://images.unsplash.com/photo-1497644083578-611b798c60f3",
-    "https://images.unsplash.com/photo-1585518419759-7fe2e0fbf8a6"
-  ];
+  
 
-  const assignImagesToRestaurants = (data) => {
+  const assignImagesToRestaurants = useCallback((data) => {
     let storedImages = JSON.parse(localStorage.getItem("assignedRestaurantImages")) || {};
     let availableImages = [...randomImages];
   
@@ -52,7 +54,7 @@ function Restaurants() {
   
     localStorage.setItem("assignedRestaurantImages", JSON.stringify(storedImages));
     return assigned;
-  };
+  }, []);
   
 
   const fetchRestaurants = useCallback(async () => {
@@ -81,11 +83,11 @@ function Restaurants() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, sortOption, sortOrder, currentPage, itemsPerPage]);
+  }, [searchQuery, sortOption, sortOrder, currentPage, itemsPerPage, assignImagesToRestaurants]);
 
   useEffect(() => {
     fetchRestaurants();
-  }, [fetchRestaurants, currentPage]);
+  }, [fetchRestaurants]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -121,13 +123,19 @@ function Restaurants() {
           className="search-input"
         />
 
-        <select value={sortOption} onChange={(e) => setSortOption(e.target.value)} className="sort-select">
+        <select value={sortOption} onChange={(e) => {
+          setSortOption(e.target.value);
+          setCurrentPage(1);
+        }} className="sort-select">
           <option value="name">Sort by Name</option>
           <option value="rating">Sort by Rating</option>
           <option value="total_ratings">Sort by Reviews</option>
         </select>
 
-        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="order-select">
+        <select value={sortOrder} onChange={(e) => {
+          setSortOrder(e.target.value);
+          setCurrentPage(1);
+        }} className="order-select">
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
@@ -160,13 +168,11 @@ function Restaurants() {
                 navigate(`/restaurants/${restaurant.place_id}`, {
                   state: { photo: restaurant.photo }
                 })
-              }              
-              
-              
+              }
             >
               <div className="image-wrapper">
                 <img
-                  src={restaurant.photo}
+                  src={restaurant.photo || fallbackImage}
                   alt={restaurant.name}
                   className="restaurant-image"
                   onError={(e) => { e.target.src = fallbackImage; }}
@@ -182,6 +188,54 @@ function Restaurants() {
             </div>
           ))
         )}
+      </div>
+
+      {/* Pagination */}
+      <div className="pagination">
+        <button
+          className="pagination-button"
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+        >
+          &laquo;
+        </button>
+
+        {Array.from({ length: Math.ceil(totalRestaurants / itemsPerPage) }, (_, index) => {
+          const page = index + 1;
+
+          if (
+            page === 1 ||
+            page === Math.ceil(totalRestaurants / itemsPerPage) ||
+            (page >= currentPage - 1 && page <= currentPage + 1)
+          ) {
+            return (
+              <button
+                key={page}
+                className={`pagination-button ${page === currentPage ? "active" : ""}`}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </button>
+            );
+          }
+
+          if (
+            page === currentPage - 2 ||
+            page === currentPage + 2
+          ) {
+            return <span key={page} className="ellipsis">...</span>;
+          }
+
+          return null;
+        })}
+
+        <button
+          className="pagination-button"
+          disabled={currentPage === Math.ceil(totalRestaurants / itemsPerPage)}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+        >
+          &raquo;
+        </button>
       </div>
     </div>
   );
