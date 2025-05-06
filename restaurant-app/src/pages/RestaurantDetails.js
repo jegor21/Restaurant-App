@@ -82,6 +82,8 @@ const RestaurantDetails = () => {
     fetchRestaurantDetails();
   }, [place_id]);
 
+  
+
 
   const getAssignedImageFromLocalStorage = (restaurant) => {
     const storedImages = JSON.parse(localStorage.getItem("assignedRestaurantImages")) || {};
@@ -91,19 +93,19 @@ const RestaurantDetails = () => {
   
   
   const getPhotoUrl = (restaurant) => {
-    if (restaurant.photos && restaurant.photos !== "null") {
+    if (restaurant && restaurant.photos && restaurant.photos !== "null") {
       return `http://localhost:5000${restaurant.photos}`;
     }
   
-    if (!restaurant || (!restaurant.id && !restaurant.place_id)) {
-      return randomImages[0]; 
-    }
+    const localImage = localStorage.getItem(`restaurantImage_${place_id}`);
+    if (localImage) return localImage;
   
-    const key = restaurant.id || restaurant.place_id || restaurant.name;
-    const hash = [...key.toString()].reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const index = hash % randomImages.length;
-    return randomImages[index];
+    const index = Math.floor(Math.random() * randomImages.length);
+    const image = randomImages[index];
+    localStorage.setItem(`restaurantImage_${place_id}`, image);
+    return image;
   };
+  
   
       
   
@@ -295,7 +297,7 @@ const RestaurantDetails = () => {
   <div className="photos-section">
     <h3>Photo</h3>
     <img
-  src={randomImage}
+  src={getPhotoUrl(restaurant)}
   alt={restaurant.name}
   className="restaurant-photo"
 />
