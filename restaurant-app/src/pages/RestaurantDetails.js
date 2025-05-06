@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { UserContext } from "../UserContext";
@@ -25,18 +25,23 @@ const getRandomImage = (id) => {
   return randomImages[index];
 };
 
+
+
+
 const RestaurantDetails = () => {
-  const { t } = useTranslation();
   const { place_id } = useParams();
-  const [randomImage, setRandomImage] = useState(() => {
-    const savedImage = localStorage.getItem(`restaurantImage_${place_id}`);
-    if (savedImage) return savedImage;
-  
+
+  const randomImage = useMemo(() => {
+    const key = `restaurantImage_${place_id}`;
+    const saved = localStorage.getItem(key);
+    if (saved) return saved;
+
     const index = Math.floor(Math.random() * randomImages.length);
-    const image = randomImages[index];
-    localStorage.setItem(`restaurantImage_${place_id}`, image);
-    return image;
-  });
+    const selected = randomImages[index];
+    localStorage.setItem(key, selected);
+    return selected;
+  }, [place_id]);
+  
   
   const location = useLocation();
   const passedPhoto = location.state?.photo;
@@ -54,6 +59,10 @@ const RestaurantDetails = () => {
   const commentsPerPage = 5;
   const commentLimit = 250;
   const [editing, setEditing] = useState(false);
+
+  
+  
+
 
   useEffect(() => {
     const fetchRestaurantDetails = async () => {
@@ -93,21 +102,12 @@ const RestaurantDetails = () => {
   
   
   const getPhotoUrl = (restaurant) => {
-    if (restaurant && restaurant.photos && restaurant.photos !== "null") {
-      return `http://localhost:5000${restaurant.photos}`;
+    const photo = restaurant?.photos;
+    if (!photo || photo === "/uploads/no-photo.jpg" || photo === "null") {
+      return randomImage;
     }
-  
-    const localImage = localStorage.getItem(`restaurantImage_${place_id}`);
-    if (localImage) return localImage;
-  
-    const index = Math.floor(Math.random() * randomImages.length);
-    const image = randomImages[index];
-    localStorage.setItem(`restaurantImage_${place_id}`, image);
-    return image;
+    return `http://localhost:5000${photo}`;
   };
-  
-  
-      
   
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
@@ -297,10 +297,13 @@ const RestaurantDetails = () => {
   <div className="photos-section">
     <h3>Photo</h3>
     <img
-  src={getPhotoUrl(restaurant)}
-  alt={restaurant.name}
-  className="restaurant-photo"
-/>
+          src={getPhotoUrl(restaurant)}
+          alt={restaurant?.name || "Restaurant"}
+          className="restaurant-photo"
+        />
+
+
+
 
 
     {isAdmin && editing && (
