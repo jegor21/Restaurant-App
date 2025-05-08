@@ -3,7 +3,8 @@
 - Jegor Skljar
 - Erwin Šults
 
-## Little Вescription
+# ENG
+## Little Description
 This project was developed for educational purposes.
 It is still in the ***testing phase*** and not ready for public release. Some features were not implemented in time, so certain aspects may not be optimized.
 
@@ -61,3 +62,63 @@ After that, the frontend will be ready.
 6. If you've completed all the steps above, the project is ready to use!
 
 Good luck!
+
+
+# EST
+## Väike kirjeldus  
+See projekt on välja töötatud õppe eesmärkidel.  
+See on endiselt ***testimise faasis*** ja ei ole avalikuks väljaandmiseks valmis. Mõned funktsioonid ei olnud õigeaegselt rakendatud, seetõttu võivad mõned aspektid olla optimeerimata.
+
+## Funktsionaalsus  
+See projekt sisaldab järgmisi funktsioone:
+- Otsing Google Mapsi kaudu, kasutades Google Cloud API-d.
+- REST API andmete vahetamiseks ja salvestamiseks.
+- Sorteerimine hinnangute ja arvustuste põhjal nii kahanevas kui ka kasvavas järjekorras.
+- Dünaamiline leht restoranide üksikasjade kuvamiseks.
+- Visuaalne otsinguala ja kaardimärgid restoranide asukohtade visualiseerimiseks.
+- Kasutajakonto loomine, et postitada kommentaare või kasutada restoranide otsimise põhifunktsioone piirkonnas.
+- Administratiivsete õiguste rakendamine kommentaaride modereerimiseks ja muude ülesannete täitmiseks.
+
+## Kuidas projekti üles tõsta  
+### Veendu, et!
+1. Veendu, et sul on Node.js paigaldatud oma seadmesse. Kui ei, siis laadi see alla ametlikult veebisaidilt.
+2. Veendu, et sul on juurdepääs PhpMyAdminile. Kui ei, siis paigalda XAMPP ametlikult veebisaidilt.
+3. Kloonige hoidla Visual Studio Code'i, kuna selle koodiredaktoriga on projektide käitamine lihtsam.
+4. Ärge unustage lisada .env-faile nii backend- kui frontend (restaurant-app) kaustadesse, et funktsionaalsus töötaks. Igas kaustas on .env.example fail, mis näitab, millised muutujad peaksid olema .env failis.
+
+### Backend OSAD
+1. Ava terminal backend'i jaoks.
+2. Backend'i jaoks:
+- Veendu, et sinu terminali tee oleks kaustas `..\backend\`. Kui ei, siis sisesta terminali käsk `cd .\backend\`.
+- Seejärel käivita ***npm install*** või ***npm i*** terminalis, et installida node_modules.
+
+### Frontend OSAD
+1. Ava terminal frontend'i jaoks.
+2. Frontendi jaoks:
+- Veendu, et sinu terminali tee oleks kaustas `..\restaurant-app\`. Kui ei, siis sisesta terminali käsk `cd .\restaurant-app\`.
+- Seejärel käivita ***npm install*** või ***npm i*** terminalis, et installida node_modules.
+- Kui saad node_modules installimise ajal vigade nimekirja, siis käivita ***npm install --legacy-peer-deps***.
+
+### Andmebaas
+1. Ava PhpMyAdmin XAMPP kaudu.
+2. Loo uus andmebaas mõne nimega.
+3. Laadi alla ***restaurant_app.sql*** fail sellelt projektilt ja impordi see uude loodud andmebaasi.
+4. Pärast importimist peaks andmebaas looma tabelid ja olema valmis kasutamiseks.
+
+### Lõppsammed
+Kui oled paigaldanud node_modules nii backend'ile kui frontend'ile ja impordinud andmebaasi, siis oled valmis projekti üles tõstma.
+1. Veendu, et .env failid on lisatud mõlemale poolele. Igas pooles on .env.example fail, mis näitab nõutavaid muutujaid.
+2. Veendu, et andmebaas töötab.
+3. Mugavuse huvides kasuta kahte terminali — ühte backend'i jaoks ja ühte frontend'i jaoks.
+
+4. Backend'i käivitamiseks veendu, et oled kaustas `..\backend\`. Kui ei, siis sisesta `cd .\backend\`.
+Käivita see käsuga ***node server.js***.
+Kui näed terminalis "Server is running on port 5000", siis on backend täielikult töövalmis.
+
+5. Frontendi käivitamiseks veendu, et oled kaustas `..\restaurant-app\`. Kui ei, siis sisesta `cd .\restaurant-app\`.
+Seejärel sisesta ***npm start***, et seda käivitada.
+Pärast seda on frontend valmis.
+
+6. Kui oled lõpetanud kõik eelnevad sammud, on projekt kasutamiseks valmis!
+
+Edu!
