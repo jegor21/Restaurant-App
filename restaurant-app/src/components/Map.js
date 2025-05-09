@@ -5,7 +5,6 @@ import { UserContext } from "../UserContext";
 import "./../styles/Map.css";
 import { useTranslation } from 'react-i18next';
 
-
 const containerStyle = {
   width: "100%",
   height: "500px",
@@ -32,12 +31,12 @@ const RestaurantMap = () => {
   const resultRefs = useRef({});
   const { t } = useTranslation();
 
-
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
   });
 
+  // Restoranide otsimise funktsioon
   const fetchRestaurants = useCallback(() => {
     if (!mapRef.current || hasSearched) return;
 
@@ -48,57 +47,53 @@ const RestaurantMap = () => {
       type: "restaurant",
     };
 
-    console.log("Sending nearbySearch request with:", request);
-
     service.nearbySearch(request, (results, status) => {
-      console.log("nearbySearch status:", status);
-      console.log("nearbySearch results:", results);
-
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         setRestaurants(results);
         setHasSearched(true);
-
         saveRestaurantToDB(searchPoint, results);
       } else {
-        console.error("Error with searching restaurants:", status);
+        console.error("Restoranide otsingu viga:", status);
       }
     });
   }, [searchPoint, hasSearched]);
 
+  // Linnanime otsimine geograafiliste koordinaatide põhjal
   const fetchCityName = async (lat, lng) => {
     try {
       const geocoder = new window.google.maps.Geocoder();
       const response = await geocoder.geocode({ location: { lat, lng } });
-  
+
       if (response.results.length > 0) {
         const addressComponents = response.results[0].address_components;
         const cityComponent = addressComponents.find((component) =>
           component.types.includes("locality")
         );
-  
+
         if (cityComponent) {
           setCity(cityComponent.long_name);
         } else {
-          console.warn("City not found in address components");
+          console.warn("Linna nimi ei leitud.");
         }
       } else {
-        console.warn("No results from geocoding");
+        console.warn("Geokodeerimine ei andnud tulemusi.");
       }
     } catch (error) {
-      console.error("Error fetching city name:", error);
+      console.error("Linna nime otsingu viga:", error);
     }
   };
 
+  // Funktsioon restoranide salvestamiseks andmebaasi
   const saveRestaurantToDB = async (searchPoint, places) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        console.error("No authentication token found");
+        console.error("Autentimise token puudu");
         return;
       }
 
       if (!Array.isArray(places)) {
-        console.error("Error: places is not an array:", places);
+        console.error("Viga: places ei ole massiiv:", places);
         return;
       }
 
@@ -107,13 +102,11 @@ const RestaurantMap = () => {
         name: place.name,
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng(),
-        address: place.vicinity || "Unknown Address",
+        address: place.vicinity || "Tundmatu aadress",
         rating: place.rating || 0,
         total_ratings: place.user_ratings_total || 0,
         photos: "no-photo.jpg",
       }));
-
-      console.log("Sending data to backend:", { searchPoint, restaurants });
 
       const response = await fetch("http://localhost:5000/api/restaurants", {
         method: "POST",
@@ -126,15 +119,16 @@ const RestaurantMap = () => {
 
       if (!response.ok) {
         const error = await response.json();
-        console.error("Failed to save restaurants:", error);
+        console.error("Restoranide salvestamise viga:", error);
       } else {
-        console.log("Restaurants saved successfully");
+        console.log("Restoranid salvestatud edukalt");
       }
     } catch (err) {
-      console.error("Error saving restaurants:", err);
+      console.error("Restoranide salvestamise viga:", err);
     }
   };
 
+  // Funktsioon, et muuta ringi (radius) kuju kaardil
   const updateRadiusCircle = useCallback(() => {
     if (!mapRef.current) return;
 
@@ -156,6 +150,7 @@ const RestaurantMap = () => {
     circleRef.current = circle;
   }, [searchPoint]);
 
+  // Funktsioon, et muuta eelvaate ringi kuju kaardil
   const updatePreviewRadius = (e) => {
     if (!mapRef.current || !isPreviewing) return;
 
@@ -179,9 +174,9 @@ const RestaurantMap = () => {
     previewCircleRef.current = previewCircle;
   };
 
+  // Eelvaate funktsiooni lülitamine sisse ja välja
   const togglePreview = () => {
     if (isPreviewing) {
-
       if (previewCircleRef.current) {
         previewCircleRef.current.setMap(null);
         previewCircleRef.current = null;
@@ -190,6 +185,7 @@ const RestaurantMap = () => {
     setIsPreviewing(!isPreviewing);
   };
 
+  // Kaardi klõpsu käsitlemine, et valida uus otsingupunkt
   const mouseMapClick = (event) => {
     if (isPreviewing) {
       const lat = event.latLng.lat();
@@ -203,9 +199,10 @@ const RestaurantMap = () => {
     }
   };
 
+  // Kasutaja autentimine ja kaardi laadimine
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/login", { state: { errorMessage: "You need to log in to access the map." } });
+      navigate("/login", { state: { errorMessage: "Peate sisselogimiseks sisse logima." } });
       return;
     }
 
@@ -216,19 +213,19 @@ const RestaurantMap = () => {
   }, [isAuthenticated, isLoaded, fetchRestaurants, searchPoint, hasSearched, updateRadiusCircle, navigate]);
 
   if (loadError) {
-    return <div className="loading-text">Error loading map 😥</div>;
+    return <div className="loading-text">Kaardi laadimise viga 😥</div>;
   }
 
   if (!isLoaded) {
-    return <div className="loading-text">Loading map...</div>;
+    return <div className="loading-text">Kaart laadib...</div>;
   }
 
   return (
     <div className="map-container">
       <div className="map-page">
-        <h1 className="map-title">Search for Restaurants</h1>
+        <h1 className="map-title">Otsi restorane</h1>
         <p className="map-description">
-          Click "Start Search", select a point on the map, and we'll find restaurants within a 500m radius for you!
+          Klõpsake "Alusta otsingut", valige kaardilt punkt ja me leiame restoranid 500m raadiuses!
         </p>
 
         <div className="button-wrapper">
@@ -236,30 +233,27 @@ const RestaurantMap = () => {
             onClick={togglePreview}
             className={`button ${isPreviewing ? "cancel" : ""}`}
           >
-            {isPreviewing ? "Cancel Search" : "Start Search"}
+            {isPreviewing ? "Tühista otsing" : "Alusta otsingut"}
           </button>
         </div>
 
         <div className="map-results-container">
-          {/* Map Section */}
           <div className="map-section">
-              <GoogleMap
-                mapContainerStyle={containerStyle}
-                center={center}
-                zoom={14}
-                onLoad={(map) => (mapRef.current = map)}
-                onClick={mouseMapClick}
-                onMouseMove={updatePreviewRadius}
-              >
-                {/* Search Point Marker */}
-                <Marker
-                  position={searchPoint}
-                  title="Search Point"
-                  icon={{ url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" }}
-                />
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={center}
+              zoom={14}
+              onLoad={(map) => (mapRef.current = map)}
+              onClick={mouseMapClick}
+              onMouseMove={updatePreviewRadius}
+            >
+              <Marker
+                position={searchPoint}
+                title="Otsingupunkt"
+                icon={{ url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" }}
+              />
 
-                {/* Restaurant Markers */}
-                {restaurants.map((place, index) => (
+              {restaurants.map((place) => (
                 <Marker
                   key={place.place_id}
                   position={place.geometry.location}
@@ -279,37 +273,35 @@ const RestaurantMap = () => {
                   onMouseOut={() => setHoveredPlaceId(null)}
                 />
               ))}
-              </GoogleMap>
-            </div>
+            </GoogleMap>
+          </div>
 
-            {/* Results Section */}
-            <div className="results-section">
-              <h2>Search Results</h2>
-              <p className="results-city">City: <strong>{city}</strong></p>
-              {restaurants.length === 0 ? (
-                <p>No restaurants found. Try another location.</p>
-              ) : (
-                <ul>
-                  {restaurants.map((place, index) => (
-                    <li
-                      key={place.place_id}
-                      ref={(el) => (resultRefs.current[place.place_id] = el)}
-                      onClick={() => window.open(`/restaurants/${place.place_id}`, "_blank")}
-                      onMouseEnter={() => setHoveredPlaceId(place.place_id)}
-                      onMouseLeave={() => setHoveredPlaceId(null)}
-                      className={`result-item ${hoveredPlaceId === place.place_id ? "hovered" : ""}`}
-                    >
-                      <strong>{place.name}</strong>
-                      <p>Address: {place.vicinity || "Unknown Address"}</p>
-                      <p>Rating: {place.rating || "N/A"} ({place.user_ratings_total || 0} reviews)</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+          <div className="results-section">
+            <h2>Otsingu tulemused</h2>
+            <p className="results-city">Linn: <strong>{city}</strong></p>
+            {restaurants.length === 0 ? (
+              <p>Restorane ei leitud. Proovige teist asukohta.</p>
+            ) : (
+              <ul>
+                {restaurants.map((place) => (
+                  <li
+                    key={place.place_id}
+                    ref={(el) => (resultRefs.current[place.place_id] = el)}
+                    onClick={() => window.open(`/restaurants/${place.place_id}`, "_blank")}
+                    onMouseEnter={() => setHoveredPlaceId(place.place_id)}
+                    onMouseLeave={() => setHoveredPlaceId(null)}
+                    className={`result-item ${hoveredPlaceId === place.place_id ? "hovered" : ""}`}
+                  >
+                    <strong>{place.name}</strong>
+                    <p>Aadress: {place.vicinity || "Tundmatu aadress"}</p>
+                    <p>Hinnang: {place.rating || "N/A"} ({place.user_ratings_total || 0} arvustust)</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
-
     </div>
   );
 };
