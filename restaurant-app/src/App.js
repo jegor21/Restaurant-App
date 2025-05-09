@@ -19,29 +19,33 @@ import EmailConfirmationSuccess from './pages/EmailConfirmationSuccess';
 import './styles/index.css';
 
 function App() {
-  const { user, isAuthenticated, logout } = useContext(UserContext);
-  const { t, i18n } = useTranslation();
+  const { user, isAuthenticated, logout } = useContext(UserContext); // Kasutaja ja autentimise kontroll
+  const { t, i18n } = useTranslation(); // Lokalisatsioon
 
   return (
     <Router>
       <div className="app">
+        {/* Navigeerimisbar */}
         <nav className="navbar">
           <div className="navbar-left">
             <div className="logo">🍽️ RestaurantApp
-            <div className="lang-switcher">
-            <button onClick={() => i18n.changeLanguage('en')}>EN</button>
-            <button onClick={() => i18n.changeLanguage('ru')}>RU</button>
+              {/* Keelerakenduse valik */}
+              <div className="lang-switcher">
+                <button onClick={() => i18n.changeLanguage('en')}>EN</button>
+                <button onClick={() => i18n.changeLanguage('ru')}>RU</button>
+              </div>
             </div>
           </div>
-          </div>
 
+          {/* Navigeerimislinkide loetelu */}
           <ul className="nav-links">
-            <li><Link to="/">{t('main')}</Link></li>
-            <li><Link to="/restaurants">{t('restaurant')}</Link></li>
-            <li><Link to="/map">{t('map')}</Link></li>
-            {user?.role === "admin" && (
+            <li><Link to="/">{t('main')}</Link></li> {/* Peamine leht */}
+            <li><Link to="/restaurants">{t('restaurant')}</Link></li> {/* Restoranide leht */}
+            <li><Link to="/map">{t('map')}</Link></li> {/* Kaardileht */}
+            {user?.role === "admin" && ( // Admin õigustega kasutajale lisatakse admin leht
               <li><Link to="/admin">{t('admin')}</Link></li>
             )}
+            {/* Kui kasutaja on sisse logitud, kuvatakse tervitus ja väljumise nupp */}
             {isAuthenticated ? (
               <>
                 <li className="welcome-user">{t('welcomeUser')}, {user?.username}</li>
@@ -49,18 +53,20 @@ function App() {
               </>
             ) : (
               <>
-                <li><Link to="/login">{t('login')}</Link></li>
-                <li><Link to="/register">{t('register')}</Link></li>
+                <li><Link to="/login">{t('login')}</Link></li> {/* Logi sisse link */}
+                <li><Link to="/register">{t('register')}</Link></li> {/* Registreeri link */}
               </>
             )}
           </ul>
         </nav>
 
+        {/* Peamine sisu, kus renderdatakse erinevad lehed */}
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/restaurants" element={<Restaurants />} />
-            <Route path="/restaurants/:place_id" element={<RestaurantDetails />} />
+            <Route path="/" element={<Home />} /> {/* Kodu leht */}
+            <Route path="/restaurants" element={<Restaurants />} /> {/* Restoranide loend */}
+            <Route path="/restaurants/:place_id" element={<RestaurantDetails />} /> {/* Restorani detailid */}
+            {/* Kaart on kaitstud leht, kus ainult autentitud kasutajad saavad juurde pääseda */}
             <Route
               path="/map"
               element={
@@ -69,17 +75,18 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/login" element={<Login />} />
-            <Route path="/password-recovery" element={<PasswordRecovery />} />
-            <Route path="/password-reset" element={<PasswordReset />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/email-confirmation-success" element={<EmailConfirmationSuccess />} />
-            <Route path="*" element={<div>404 Not Found</div>} />
-            {user?.role === "admin" && <Route path="/admin" element={<AdminPage />} />}
-            {user?.role === "admin" && <Route path="/admin/comments" element={<ManageComments />} />}
+            <Route path="/login" element={<Login />} /> {/* Logi sisse leht */}
+            <Route path="/password-recovery" element={<PasswordRecovery />} /> {/* Parooli taastamise leht */}
+            <Route path="/password-reset" element={<PasswordReset />} /> {/* Parooli lähtestamise leht */}
+            <Route path="/register" element={<Register />} /> {/* Registreerimise leht */}
+            <Route path="/email-confirmation-success" element={<EmailConfirmationSuccess />} /> {/* E-maili kinnitamine */}
+            <Route path="*" element={<div>404 Not Found</div>} /> {/* 404 leht, kui teed vale päringu */}
+            {user?.role === "admin" && <Route path="/admin" element={<AdminPage />} />} {/* Admin leht */}
+            {user?.role === "admin" && <Route path="/admin/comments" element={<ManageComments />} />} {/* Kommenteerimise haldamine adminile */}
           </Routes>
         </main>
 
+        {/* Jalus */}
         <footer className="footer">
           <p>&copy; {new Date().getFullYear()} RestaurantApp. All rights reserved. 2025</p>
         </footer>
