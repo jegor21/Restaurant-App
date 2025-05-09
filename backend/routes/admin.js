@@ -6,6 +6,7 @@ const multer = require('multer');
 const path = require('path');
 
 
+// For file upload(Example: uploading photos)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/'); 
@@ -32,7 +33,7 @@ router.post('/restaurants/:id/photo', authenticate, authorizeAdmin, upload.singl
 });
 
 
-// Fetch all restaurants
+// Fetch all restaurants(for admin)
 router.get('/restaurants', authenticate, authorizeAdmin, async (req, res) => {
   try {
     const [restaurants] = await db.query('SELECT * FROM restaurants');
@@ -43,7 +44,7 @@ router.get('/restaurants', authenticate, authorizeAdmin, async (req, res) => {
   }
 });
 
-// Add a new restaurant
+// Add a new restaurant(for admin)
 router.post('/restaurants', authenticate, authorizeAdmin, async (req, res) => {
   const { name, address, city, lat, lng, rating } = req.body;
   try {
@@ -58,7 +59,7 @@ router.post('/restaurants', authenticate, authorizeAdmin, async (req, res) => {
   }
 });
 
-// Update a restaurant
+// Update a restaurant(for admin)
 router.put('/restaurants/:id', authenticate, authorizeAdmin, async (req, res) => {
     const { id } = req.params;
     const { name, address, city, lat, lng, rating } = req.body;
@@ -74,7 +75,7 @@ router.put('/restaurants/:id', authenticate, authorizeAdmin, async (req, res) =>
     }
   });
 
-// Delete a restaurant and comments
+// Delete a restaurant and comments(for admin)
 router.delete('/restaurants/:id', authenticate, authorizeAdmin, async (req, res) => {
     const { id } = req.params;
     try {
@@ -91,7 +92,7 @@ router.delete('/restaurants/:id', authenticate, authorizeAdmin, async (req, res)
     }
   });
   
-// Fetch all pending comments
+// Fetch all pending comments(for admin)
 router.get('/comments', authenticate, authorizeAdmin, async (req, res) => {
     try {
       const [comments] = await db.query(
@@ -109,7 +110,7 @@ router.get('/comments', authenticate, authorizeAdmin, async (req, res) => {
     }
 });
 
-// Approve a comment
+// Approve a comment(for admin)
 router.put('/comments/:id/approve', authenticate, authorizeAdmin, async (req, res) => {
   const { id } = req.params;
   try {
@@ -121,7 +122,7 @@ router.put('/comments/:id/approve', authenticate, authorizeAdmin, async (req, re
   }
 });
 
-// Reject a comment
+// Reject a comment(for admin)
 router.put('/comments/:id/reject', authenticate, authorizeAdmin, async (req, res) => {
   const { id } = req.params;
   try {
@@ -133,7 +134,7 @@ router.put('/comments/:id/reject', authenticate, authorizeAdmin, async (req, res
   }
 });
 
-// Delete a specific comment
+// Delete a specific comment(for admin)
 router.delete('/comments/:id', authenticate, authorizeAdmin, async (req, res) => {
     const { id } = req.params;
     try {

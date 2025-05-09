@@ -38,7 +38,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Confirmation mail
+// Confirmation mail, updates user's status to confirmed
 router.get('/confirm-email', async (req, res) => {
   const { token } = req.query;
   try {
@@ -73,7 +73,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
     const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role }, // Include username in the payload
+      { id: user.id, username: user.username, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -157,6 +157,7 @@ const authorizeAdmin = (req, res, next) => {
   next();
 };
 
+// Ensures that user is logged in and authorized
 router.get('/me', authenticate, async (req, res) => {
   try {
     const [users] = await db.query('SELECT id, username, role FROM users WHERE id = ?', [req.user.id]);

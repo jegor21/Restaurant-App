@@ -4,6 +4,7 @@ const db = require('../db');
 const { authenticate, authorizeAdmin } = require('./auth');
 const axios = require('axios'); 
 
+// Get city name from cord with Google Cloud API
 const getCityFromCoordinates = async (lat, lng) => {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
@@ -27,6 +28,7 @@ const getCityFromCoordinates = async (lat, lng) => {
   return 'Unknown City';
 };
 
+// GET all restaurants
 router.get('/', async (req, res) => {
   const { search, sort, order, page = 1, limit = 10 } = req.query;
 
@@ -129,6 +131,7 @@ router.post('/', authenticate, async (req, res) => {
   }
 });
 
+// GET all comments for a restaurant
 router.get('/:place_id/comments', async (req, res) => {
   const { place_id } = req.params;
 
