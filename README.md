@@ -45,6 +45,48 @@ This project includes the following features:
 3. Download the ***restaurant_app.sql*** file from this project and import it into the newly created database.
 4. After importing, the database should generate tables and be ready for use. 
 
+### .env PART
+This file is very important for configuration and is required to connect to the API service, database, email, etc.  
+Let’s explain what needs to be done for each line to make everything work properly.  
+***Note: Both ends contain a `.env.example` file, which may already have default settings, such as database configuration. Wherever a variable starts with "Your_...", it means you need to insert your own secret values.***
+
+#### Backend's .env
+
+1. The first five lines are for the database (PhpMyAdmin). They already contain default settings such as `DB_HOST`, `DB_USER`, and `PORT`. The only one that may differ is `DB_NAME`, as you can name your database anything.
+
+- Example configuration:
+```
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=restaurant_app
+PORT=5000
+```
+
+2. Next is `JWT_SECRET`, which can be left as is.  
+3. Then comes the email configuration. `EMAIL_HOST` and `EMAIL_PORT` stay unchanged, but everything else must be set manually. For detailed setup, you MUST follow this guide – https://support.google.com/mail/answer/185833?hl=en
+
+- Example configuration:
+```
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=example@gmail.com
+EMAIL_PASS=qwertyuiopasdfgh
+EMAIL_FROM=example@gmail.com
+```
+
+Lastly, you need a Google Cloud API key. To get the key, you’ll need a Google account and a credit card (you won’t be able to use the API without one). Most importantly, after creating your account and linking everything, be sure to enable the following three services:
+- Places API  
+- Maps JavaScript API  
+- Geocoding API  
+
+Once the key is generated, just paste it into `GOOGLE_MAPS_API_KEY`.  
+For detailed setup, you MUST follow this guide – https://developers.google.com/maps/get-started#api-key
+
+#### Frontend's .env  
+The frontend setup is much easier. If you’ve already generated the API key using the Google Cloud API instructions from the previous section, simply paste the same key into:  
+`REACT_APP_GOOGLE_MAPS_API_KEY`
+
 ### Final steps
 If you have installed node_modules for both backend and frontend, and imported the database, you are ready to launch the project.
 1. Make sure the .env files are added in both ends. Each end contains a .env.example file showing the required variables.
@@ -104,6 +146,49 @@ See projekt sisaldab järgmisi funktsioone:
 2. Loo uus andmebaas mõne nimega.
 3. Laadi alla ***restaurant_app.sql*** fail sellelt projektilt ja impordi see uude loodud andmebaasi.
 4. Pärast importimist peaks andmebaas looma tabelid ja olema valmis kasutamiseks.
+
+### .env OSA  
+See fail on konfiguratsiooni jaoks väga oluline ning vajalik API teenuse, andmebaasi, e-posti jms ühendamiseks.  
+Selgitame, mida tuleb teha iga rea jaoks, et kõik korralikult töötaks.  
+***Märkus: Mõlemas projektiosas on olemas `.env.example` fail, kus võivad juba olla vaikimisi seaded (näiteks andmebaasi seaded). Kui muutuja algab sõnaga "Your_...", tähendab see, et sinna tuleb lisada sinu enda salajased väärtused.***
+
+#### Backend'i .env  
+
+1. Esimesed viis rida on mõeldud andmebaasi jaoks (PhpMyAdmin). Seal on juba vaikimisi väärtused nagu `DB_HOST`, `DB_USER` ja `PORT`. Ainus, mis võib erineda, on `DB_NAME`, kuna andmebaasi nimi võib olla sinu enda valitud.
+
+- Näide konfiguratsioonist:
+```
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=restaurant_app
+PORT=5000
+```
+
+2. Järgmiseks on `JWT_SECRET`, mida võib jätta vaikimisi.  
+3. Seejärel tuleb e-posti seadistus. `EMAIL_HOST` ja `EMAIL_PORT` jäävad muutmata, kuid kõik muu tuleb käsitsi seadistada. Täpsemaks seadistamiseks PEAB järgima seda juhendit – https://support.google.com/mail/answer/185833?hl=en
+
+- Näide seadistusest:
+```
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=example@gmail.com
+EMAIL_PASS=qwertyuiopasdfgh
+EMAIL_FROM=example@gmail.com
+```
+
+Lõpuks on vaja Google Cloud API võtit. Võtme loomiseks on vaja Google’i kontot ja pangakaarti (ilma selleta ei saa API-t kasutada). Kõige tähtsam on, et pärast konto loomist ja kõige sidumist tuleb kindlasti aktiveerida järgmised kolm teenust:
+- Places API  
+- Maps JavaScript API  
+- Geocoding API  
+
+Kui võti on loodud, sisesta see lihtsalt muutujasse `GOOGLE_MAPS_API_KEY`.  
+Täpsemaks seadistamiseks PEAB järgima seda juhendit – https://developers.google.com/maps/get-started#api-key
+
+#### Frontend'i .env  
+Frontend'i seadistamine on palju lihtsam. Kui oled juba loonud API võtme kasutades eelmises peatükis toodud Google Cloud API juhendit, siis sisesta sama võti siia:  
+`REACT_APP_GOOGLE_MAPS_API_KEY`
+
 
 ### Lõppsammed
 Kui oled paigaldanud node_modules nii backend'ile kui frontend'ile ja impordinud andmebaasi, siis oled valmis projekti üles tõstma.
