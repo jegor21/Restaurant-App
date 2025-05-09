@@ -23,7 +23,7 @@ function Restaurants() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const fallbackImage = "/images/no-photo.jpg";
+  const fallbackImage = "/images/no-photo.jpg"; // Pilt, kui restoranil pole pilti
 
   const queryParams = new URLSearchParams(location.search);
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "");
@@ -31,8 +31,7 @@ function Restaurants() {
   const [sortOrder, setSortOrder] = useState(queryParams.get("order") || "desc");
   const [totalRestaurants, setTotalRestaurants] = useState(0);
 
-  
-
+  // Funktsioon restoranide piltide määramiseks
   const assignImagesToRestaurants = useCallback((data) => {
     let storedImages = JSON.parse(localStorage.getItem("assignedRestaurantImages")) || {};
     let availableImages = [...randomImages];
@@ -57,38 +56,41 @@ function Restaurants() {
   }, []);
   
 
+  // Restoranide laadimise funktsioon
   const fetchRestaurants = useCallback(async () => {
     try {
       const params = new URLSearchParams();
 
-      if (searchQuery) params.append("search", searchQuery);
+      if (searchQuery) params.append("search", searchQuery); // Otsingupäring
       if (sortOption) {
-        params.append("sort", sortOption);
-        params.append("order", sortOrder);
+        params.append("sort", sortOption); // Sortimisvalik
+        params.append("order", sortOrder); // Sortimisjärjekord
       }
 
-      params.append("page", currentPage);
-      params.append("limit", itemsPerPage);
+      params.append("page", currentPage); // Praegune leht
+      params.append("limit", itemsPerPage); // Leheküljel kuvatavad üksused
 
       const response = await fetch(`http://localhost:5000/api/restaurants?${params.toString()}`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const { data, total } = await response.json();
 
-      const restaurantsWithPhotos = assignImagesToRestaurants(data);
+      const restaurantsWithPhotos = assignImagesToRestaurants(data); // Lisa restoranidele pildid
       setRestaurants(restaurantsWithPhotos);
-      setTotalRestaurants(total);
+      setTotalRestaurants(total); // Kokku restoranide arv
     } catch (error) {
-      console.error("Error fetching restaurants:", error);
+      console.error("Viga restoranide laadimisel:", error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Laadimine lõppenud
     }
   }, [searchQuery, sortOption, sortOrder, currentPage, itemsPerPage, assignImagesToRestaurants]);
 
+  // Laadi restoranid esmakordsel renderdamisel
   useEffect(() => {
     fetchRestaurants();
   }, [fetchRestaurants]);
 
+  // URL-i päringute värskendamine, kui kasutaja muudab filtreid
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.set("search", searchQuery);
@@ -99,6 +101,7 @@ function Restaurants() {
     navigate(`?${params.toString()}`, { replace: true });
   }, [searchQuery, sortOption, sortOrder, currentPage, itemsPerPage, navigate]);
 
+  // Filtreerimise lähtestamise funktsioon
   const resetFilters = () => {
     setSearchQuery("");
     setSortOption("name");
@@ -109,56 +112,62 @@ function Restaurants() {
 
   return (
     <div className="restaurant-page">
-      <h2 className="restaurant-title">Restaurants</h2>
+      <h2 className="restaurant-title">Restoranid</h2>
 
       <div className="controls">
+        {/* Otsinguväljund */}
         <input
           type="text"
-          placeholder="Search restaurants..."
+          placeholder="Otsi restorane..."
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value);
-            setCurrentPage(1);
+            setCurrentPage(1); // Lähtesta leht
           }}
           className="search-input"
         />
 
+        {/* Sortimisvalik */}
         <select value={sortOption} onChange={(e) => {
           setSortOption(e.target.value);
-          setCurrentPage(1);
+          setCurrentPage(1); // Lähtesta leht
         }} className="sort-select">
-          <option value="name">Sort by Name</option>
-          <option value="rating">Sort by Rating</option>
-          <option value="total_ratings">Sort by Reviews</option>
+          <option value="name">Sorteeri nime järgi</option>
+          <option value="rating">Sorteeri hinnangu järgi</option>
+          <option value="total_ratings">Sorteeri ülevaadete järgi</option>
         </select>
 
+        {/* Järjekorra valik */}
         <select value={sortOrder} onChange={(e) => {
           setSortOrder(e.target.value);
-          setCurrentPage(1);
+          setCurrentPage(1); // Lähtesta leht
         }} className="order-select">
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
+          <option value="asc">Kasvav</option>
+          <option value="desc">Kahanev</option>
         </select>
 
+        {/* Üksuste arv lehe kohta */}
         <select
           value={itemsPerPage}
           onChange={(e) => {
             setItemsPerPage(Number(e.target.value));
-            setCurrentPage(1);
+            setCurrentPage(1); // Lähtesta leht
           }}
           className="items-per-page-select"
         >
-          <option value={5}>5 per page</option>
-          <option value={10}>10 per page</option>
-          <option value={20}>20 per page</option>
+          <option value={5}>5 leheküljel</option>
+          <option value={10}>10 leheküljel</option>
+          <option value={20}>20 leheküljel</option>
         </select>
 
-        <button onClick={resetFilters} className="reset-button">Reset</button>
+        {/* Lähtesta filtrid */}
+        <button onClick={resetFilters} className="reset-button">Lähtesta</button>
       </div>
 
       <div className="restaurant-list">
+        {/* Laadimisekraan */}
         {loading ? (
-          <p className="loading-text">Loading restaurants...</p>
+          <p className="loading-text">Laadime restorane...</p>
         ) : (
           restaurants.map((restaurant) => (
             <div
@@ -172,25 +181,25 @@ function Restaurants() {
             >
               <div className="image-wrapper">
                 <img
-                  src={restaurant.photo || fallbackImage}
+                  src={restaurant.photo || fallbackImage} // Kui pilt puudub, näita vaikimisi pilti
                   alt={restaurant.name}
                   className="restaurant-image"
-                  onError={(e) => { e.target.src = fallbackImage; }}
+                  onError={(e) => { e.target.src = fallbackImage; }} // Kui pilt ei lae, asenda vaikimisi pildiga
                 />
               </div>
               <div className="restaurant-info">
                 <h3 className="restaurant-name">{restaurant.name}</h3>
-                <p className="restaurant-rating">Rating: {restaurant.rating || "N/A"}</p>
-                <p className="restaurant-reviews">Reviews: {restaurant.total_ratings || 0}</p>
-                <p className="restaurant-address">Address: {restaurant.address}</p>
-                <p className="restaurant-city">City: {restaurant.city}</p>
+                <p className="restaurant-rating">Hinnang: {restaurant.rating || "N/A"}</p>
+                <p className="restaurant-reviews">Ülevaated: {restaurant.total_ratings || 0}</p>
+                <p className="restaurant-address">Aadress: {restaurant.address}</p>
+                <p className="restaurant-city">Linn: {restaurant.city}</p>
               </div>
             </div>
           ))
         )}
       </div>
 
-      {/* Pagination */}
+      {/* Lehe pööramine */}
       <div className="pagination">
         <button
           className="pagination-button"
